@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.wristlingo.wear"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.wristlingo.wear"
         minSdk = 30
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
