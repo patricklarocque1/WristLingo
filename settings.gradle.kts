@@ -20,5 +20,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "WristLingo"
-include(":app", ":wear")
+include(":app", ":wear", ":core")
 

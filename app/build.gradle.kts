@@ -78,6 +78,7 @@ dependencies {
     implementation(libs.room.ktx)
     kapt(libs.room.compiler)
 
+    implementation(project(":core"))
     implementation(libs.play.services.wearable)
     implementation(libs.mlkit.translate)
 }

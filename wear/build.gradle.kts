@@ -68,6 +68,8 @@ kotlin {
 dependencies {
     implementation(platform(libs.compose.bom))
     implementation(libs.wear.compose.material)
+    implementation(libs.androidx.compose.foundation)
+    implementation(project(":core"))
     implementation(libs.play.services.wearable)
 }
 
