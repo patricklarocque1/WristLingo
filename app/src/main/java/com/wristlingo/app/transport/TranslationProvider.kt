@@ -6,6 +6,8 @@ import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
 import com.google.mlkit.nl.translate.TranslatorOptions
+import com.google.mlkit.nl.translate.TranslateRemoteModel
+import com.google.mlkit.common.model.RemoteModelManager
 import com.wristlingo.core.settings.Settings
 import kotlinx.coroutines.tasks.await
 
@@ -38,5 +40,19 @@ class TranslationProvider(private val context: Context, private val settings: Se
     }
 
     fun defaultTarget(): String = settings.defaultTargetLanguage
+
+    suspend fun isModelDownloaded(language: String): Boolean {
+        val langCode = TranslateLanguage.fromLanguageTag(language) ?: language
+        val model = TranslateRemoteModel.Builder(langCode).build()
+        return try {
+            RemoteModelManager.getInstance().isModelDownloaded(model).await()
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
+    suspend fun downloadTargetModelIfNeeded(target: String) {
+        ensureModel(null, target)
+    }
 }
 

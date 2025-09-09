@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,15 +30,20 @@ import java.util.Locale
 fun SessionsScreen(
     repository: SessionRepository,
     modifier: Modifier = Modifier,
-    onOpenSession: (Long) -> Unit
+    onOpenSession: (Long) -> Unit,
+    onOpenSettings: () -> Unit
 ) {
     val sessions by repository.observeRecentSessions().collectAsState(initial = emptyList())
     Column(modifier = modifier.padding(16.dp)) {
-        Text(
-            text = "Sessions",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = "Sessions",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
+            )
+            Button(onClick = onOpenSettings) { Text("Settings") }
+        }
         Spacer(modifier = Modifier.height(12.dp))
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(sessions) { session ->

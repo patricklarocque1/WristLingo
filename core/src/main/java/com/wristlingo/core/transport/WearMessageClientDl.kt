@@ -66,6 +66,16 @@ class WearMessageClientDl(
         listener?.invoke(path, payload)
     }
 
+    /** Returns true if at least one counterpart node is connected. */
+    suspend fun hasConnectedNode(): Boolean {
+        return try {
+            val nodes = Tasks.await(nodeClient.connectedNodes)
+            nodes.isNotEmpty()
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
     fun close() {
         appScope.launch {
             try { messageClient.removeListener(this@WearMessageClientDl) } catch (_: Throwable) {}

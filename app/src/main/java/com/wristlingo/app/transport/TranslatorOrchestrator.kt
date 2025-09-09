@@ -3,6 +3,9 @@ package com.wristlingo.app.transport
 import android.content.Context
 import com.wristlingo.app.data.SessionRepository
 import com.wristlingo.core.transport.DlClient
+import com.wristlingo.core.transport.WearMessageClientDl
+import com.wristlingo.core.tts.TtsHelper
+import com.wristlingo.core.settings.Settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -19,6 +22,8 @@ class TranslatorOrchestrator(
     private var unregister: (() -> Unit)? = null
     private var activeSessionId: Long? = null
     private var activeTargetLang: String? = null
+    private val settings = Settings(context)
+    private val tts = if (dl is WearMessageClientDl) TtsHelper(context, dl) else TtsHelper(context, null)
 
     fun start() {
         unregister = dl.setListener { topic, payload ->
@@ -66,6 +71,12 @@ class TranslatorOrchestrator(
             .put("text", translated)
             .put("dstLang", tgt)
         dlSend("caption/update", out.toString())
+
+        if (settings.autoSpeak) {
+            scope.launch(Dispatchers.Main) {
+                try { tts.speakPreferWatch(translated, tgt) } catch (_: Throwable) {}
+            }
+        }
     }
 
     private suspend fun ensureSession(targetLang: String): Long {
