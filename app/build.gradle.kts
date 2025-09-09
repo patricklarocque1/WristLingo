@@ -73,6 +73,7 @@ dependencies {
 
     implementation(platform(libs.compose.bom))
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.compose.foundation)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
