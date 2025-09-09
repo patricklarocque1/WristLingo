@@ -16,6 +16,7 @@ import com.wristlingo.app.data.AppDatabase
 import com.wristlingo.app.data.SessionRepository
 import com.wristlingo.app.ui.SessionsScreen
 import com.wristlingo.app.ui.SessionDetailScreen
+import com.wristlingo.app.ui.SettingsScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -36,12 +37,24 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 var selectedSessionId by remember { mutableStateOf<Long?>(null) }
+                var showSettings by remember { mutableStateOf(false) }
                 if (selectedSessionId == null) {
-                    SessionsScreen(
-                        repository = repository,
-                        modifier = Modifier.fillMaxSize(),
-                        onOpenSession = { selectedSessionId = it }
-                    )
+                    if (showSettings) {
+                        SettingsScreen(
+                            settings = settings,
+                            translationProvider = tp,
+                            isOfflineFlavor = !BuildConfig.USE_CLOUD_TRANSLATE,
+                            modifier = Modifier.fillMaxSize(),
+                            onBack = { showSettings = false }
+                        )
+                    } else {
+                        SessionsScreen(
+                            repository = repository,
+                            modifier = Modifier.fillMaxSize(),
+                            onOpenSession = { selectedSessionId = it },
+                            onOpenSettings = { showSettings = true }
+                        )
+                    }
                 } else {
                     SessionDetailScreen(
                         repository = repository,

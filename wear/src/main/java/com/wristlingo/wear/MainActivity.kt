@@ -10,6 +10,7 @@ import androidx.wear.compose.material.MaterialTheme
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.wristlingo.core.transport.WearMessageClientDl
+import com.wristlingo.core.tts.TtsHelper
 import com.wristlingo.wear.asr.AsrController
 import com.wristlingo.wear.ui.WearApp
 import kotlinx.coroutines.CoroutineScope
@@ -27,20 +28,27 @@ class MainActivity : Activity() {
 
     private var captionText: String? = null
     private var partialText: String? = null
+    private lateinit var tts: TtsHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ensureRecordAudioPermission()
         asr = AsrController(this)
         dl = WearMessageClientDl(this, CoroutineScope(Dispatchers.IO))
+        tts = TtsHelper(this, null)
 
-        // Listen for captions from phone
+        // Listen for captions and TTS requests from phone
         dl.setListener { topic, payload ->
             if (topic == "caption/update") {
                 val obj = JSONObject(payload)
                 val text = obj.optString("text")
                 captionText = text
                 runOnUiThread { composeView.setContent(content) }
+            } else if (topic == "tts/speak") {
+                val obj = JSONObject(payload)
+                val text = obj.optString("text")
+                val lang = obj.optString("lang")
+                scope.launch { tts.speakLocal(text, lang) }
             }
         }
 
@@ -84,6 +92,7 @@ class MainActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
         asr.release()
+        tts.release()
     }
 
     private fun ensureRecordAudioPermission() {
