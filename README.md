@@ -27,8 +27,9 @@ Hands‑free, on‑the‑go translation. The Wear OS app captures nearby speech 
 
 ## Quickstart
 ```bash
-./gradlew :app:assembleOfflineDebug :wear:assembleOfflineDebug
-./gradlew :app:testOfflineDebug
+# Build with Android Studio (Gradle wrapper not included in repo)
+# Or add a Gradle wrapper locally and run:
+# ./gradlew :app:assembleOfflineDebug :wear:assembleOfflineDebug
 ```
 
 ## Optional Cloud (off by default)
