@@ -2,7 +2,6 @@ pluginManagement {
     repositories {
         google()
         mavenCentral()
-        gradlePluginPortal()
     }
 }
 
@@ -21,4 +20,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "WristLingo"
 include(":app", ":wear", ":core")
-

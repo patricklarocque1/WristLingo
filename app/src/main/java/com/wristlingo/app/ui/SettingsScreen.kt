@@ -26,6 +26,7 @@ import com.google.mlkit.nl.translate.TranslateLanguage
 import com.wristlingo.core.settings.Settings
 import com.wristlingo.app.transport.TranslationProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
