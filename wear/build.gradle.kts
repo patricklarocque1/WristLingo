@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.wristlingo.wear"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.wristlingo.wear"
         minSdk = 30
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -68,6 +68,8 @@ kotlin {
 dependencies {
     implementation(platform(libs.compose.bom))
     implementation(libs.wear.compose.material)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.foundation)
     implementation(project(":core"))
     implementation(libs.play.services.wearable)

@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.wristlingo.app"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.wristlingo.app"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -82,5 +82,8 @@ dependencies {
     implementation(project(":core"))
     implementation(libs.play.services.wearable)
     implementation(libs.mlkit.translate)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.play.services)
 }
 

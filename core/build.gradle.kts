@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace = "com.wristlingo.core"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 34
 
         val isCi = System.getenv("CI") == "true"
         buildConfigField("boolean", "CI", isCi.toString())
