@@ -31,5 +31,13 @@
     <string name="downloaded">تم التنزيل</string>
     <string name="not_downloaded">غير مُنزّل</string>
     <string name="untitled">(بدون عنوان)</string>
+    <string name="whisper_phone_section">ويسبر (الهاتف)</string>
+    <string name="whisper_phone_toggle">استخدم Whisper على الهاتف (الساعة ترسل الصوت)</string>
+    <string name="whisper_model_path">مسار نموذج Whisper</string>
+    <string name="whisper_model_status">نموذج Whisper: %1$s</string>
+    <string name="whisper_model_url">رابط نموذج Whisper</string>
+    <string name="whisper_model_sha256">قيمة SHA-256 لنموذج Whisper</string>
+    <string name="whisper_model_download">تنزيل نموذج Whisper</string>
+    <string name="whisper_model_downloading">جارٍ التنزيل… ‎%1$d‎%%</string>
 </resources>
 

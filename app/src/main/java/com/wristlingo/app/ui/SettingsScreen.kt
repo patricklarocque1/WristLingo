@@ -2,6 +2,9 @@ package com.wristlingo.app.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +37,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.res.stringResource
 import com.wristlingo.app.R
+import com.wristlingo.app.asr.WhisperModelManager
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun SettingsScreen(
@@ -47,6 +52,15 @@ fun SettingsScreen(
     var target by remember { mutableStateOf(settings.defaultTargetLanguage) }
     var autoSpeak by remember { mutableStateOf(settings.autoSpeak) }
     var useCloudTranslate by remember { mutableStateOf(settings.useCloudTranslate) }
+    var useWhisperRemote by remember { mutableStateOf(settings.useWhisperRemote) }
+    var whisperModelPath by remember { mutableStateOf(settings.whisperModelPath) }
+    val ctx = LocalContext.current
+    val whisperMgr = remember { WhisperModelManager(ctx.applicationContext) }
+    var whisperHasModel by remember { mutableStateOf(whisperMgr.hasModel()) }
+    var whisperUrl by remember { mutableStateOf("") }
+    var whisperSha256 by remember { mutableStateOf("") }
+    var whisperDownloading by remember { mutableStateOf(false) }
+    var whisperProgress by remember { mutableStateOf(0) }
     var modelStatus by remember { mutableStateOf("Unknown") }
     var isDownloading by remember { mutableStateOf(false) }
 
@@ -59,7 +73,7 @@ fun SettingsScreen(
         modelStatus = if (isDownloaded) "Downloaded" else "Not downloaded"
     }
 
-    Column(modifier = modifier.padding(16.dp)) {
+    Column(modifier = modifier.padding(WindowInsets.systemBars.asPaddingValues()).padding(16.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
                 text = stringResource(id = R.string.title_settings),
@@ -75,7 +89,7 @@ fun SettingsScreen(
             headlineContent = { Text(stringResource(id = R.string.target_language)) },
             supportingContent = { Text(target.uppercase()) },
             trailingContent = {
-                TextButton(onClick = { }) { Text(stringResource(id = R.string.change)) }
+                TextButton(onClick = { }) { Text(stringResource(id = R.string.change), maxLines = 1) }
             }
         )
         OutlinedTextField(
@@ -87,12 +101,12 @@ fun SettingsScreen(
         LazyColumn(modifier = Modifier.fillMaxWidth().height(160.dp)) {
             items(filtered) { code ->
                 ListItem(
-                    headlineContent = { Text(code.uppercase()) },
+                    headlineContent = { Text(code.uppercase(), maxLines = 1) },
                     trailingContent = {
                         TextButton(onClick = {
                             target = code
                             settings.defaultTargetLanguage = code
-                        }) { Text(if (target == code) stringResource(id = R.string.selected) else stringResource(id = R.string.select)) }
+                        }) { Text(if (target == code) stringResource(id = R.string.selected) else stringResource(id = R.string.select), maxLines = 1) }
                     }
                 )
             }
@@ -104,7 +118,7 @@ fun SettingsScreen(
 
         Text(text = stringResource(id = R.string.speech), style = MaterialTheme.typography.titleSmall)
         ListItem(
-            headlineContent = { Text(stringResource(id = R.string.speak_translations)) },
+            headlineContent = { Text(stringResource(id = R.string.speak_translations), maxLines = 1) },
             trailingContent = {
                 Checkbox(
                     checked = autoSpeak,
@@ -122,7 +136,7 @@ fun SettingsScreen(
 
         Text(text = stringResource(id = R.string.translation), style = MaterialTheme.typography.titleSmall)
         ListItem(
-            headlineContent = { Text(stringResource(id = R.string.use_cloud_translate)) },
+            headlineContent = { Text(stringResource(id = R.string.use_cloud_translate), maxLines = 1) },
             supportingContent = { if (isOfflineFlavor) Text(stringResource(id = R.string.use_cloud_translate_offline_disabled)) },
             trailingContent = {
                 Checkbox(
@@ -135,6 +149,136 @@ fun SettingsScreen(
                 )
             }
         )
+
+        Spacer(modifier = Modifier.height(12.dp))
+        HorizontalDivider()
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(text = stringResource(id = R.string.whisper_phone_section), style = MaterialTheme.typography.titleSmall)
+        ListItem(
+            headlineContent = { Text(stringResource(id = R.string.whisper_phone_toggle), maxLines = 1) },
+            trailingContent = {
+                Checkbox(
+                    checked = useWhisperRemote,
+                    onCheckedChange = { checked ->
+                        useWhisperRemote = checked
+                        settings.useWhisperRemote = checked
+                    }
+                )
+            }
+        )
+        OutlinedTextField(
+            value = whisperModelPath,
+            onValueChange = { value ->
+                whisperModelPath = value
+                settings.whisperModelPath = value
+            },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("/absolute/path/to/model.gguf") },
+            label = { Text(stringResource(id = R.string.whisper_model_path)) },
+            readOnly = true
+        )
+        ListItem(
+            headlineContent = { Text(stringResource(id = R.string.whisper_model_status, if (whisperHasModel) stringResource(id = R.string.downloaded) else stringResource(id = R.string.not_downloaded))) }
+        )
+        OutlinedTextField(
+            value = whisperUrl,
+            onValueChange = { whisperUrl = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(id = R.string.whisper_model_url)) },
+            placeholder = { Text("https://…/model.gguf") }
+        )
+        // Tuning controls
+        Spacer(modifier = Modifier.height(12.dp))
+        HorizontalDivider()
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(text = "Whisper tuning", style = MaterialTheme.typography.titleSmall)
+        var vadThresh by remember { mutableStateOf(settings.vadRmsThreshold.toString()) }
+        var silenceMs by remember { mutableStateOf(settings.vadSilenceMs.toString()) }
+        var winMs by remember { mutableStateOf(settings.partialWindowMs.toString()) }
+        var thrMs by remember { mutableStateOf(settings.partialThrottleMs.toString()) }
+        var backlogMs by remember { mutableStateOf(settings.backlogCapMs.toString()) }
+        var logRms by remember { mutableStateOf(settings.logRms) }
+        OutlinedTextField(
+            value = vadThresh,
+            onValueChange = { vadThresh = it; it.toIntOrNull()?.let { v -> settings.vadRmsThreshold = v } },
+            label = { Text("VAD RMS threshold") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = silenceMs,
+            onValueChange = { silenceMs = it; it.toIntOrNull()?.let { v -> settings.vadSilenceMs = v } },
+            label = { Text("VAD silence ms") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = winMs,
+            onValueChange = { winMs = it; it.toIntOrNull()?.let { v -> settings.partialWindowMs = v } },
+            label = { Text("Partial window ms") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = thrMs,
+            onValueChange = { thrMs = it; it.toIntOrNull()?.let { v -> settings.partialThrottleMs = v } },
+            label = { Text("Partial throttle ms") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = backlogMs,
+            onValueChange = { backlogMs = it; it.toIntOrNull()?.let { v -> settings.backlogCapMs = v } },
+            label = { Text("Backlog cap ms") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        ListItem(
+            headlineContent = { Text("Log RMS to Logcat") },
+            trailingContent = {
+                Checkbox(checked = logRms, onCheckedChange = { checked -> logRms = checked; settings.logRms = checked })
+            }
+        )
+        OutlinedTextField(
+            value = whisperSha256,
+            onValueChange = { whisperSha256 = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(id = R.string.whisper_model_sha256)) },
+            placeholder = { Text("64-hex SHA-256") }
+        )
+        Button(
+            onClick = {
+                whisperDownloading = true
+                whisperProgress = 0
+                scope.launch(Dispatchers.IO) {
+                    try {
+                        val path = whisperMgr.downloadModel(
+                            url = whisperUrl.trim(),
+                            sha256Hex = whisperSha256.trim()
+                        ) { downloaded, total ->
+                            if (total > 0) {
+                                val pct = (downloaded * 100 / total).toInt()
+                                launch(Dispatchers.Main) { whisperProgress = pct }
+                            }
+                        }
+                        withContext(Dispatchers.Main) {
+                            whisperModelPath = path
+                            settings.whisperModelPath = path
+                            whisperHasModel = true
+                            whisperDownloading = false
+                        }
+                    } catch (_: Throwable) {
+                        withContext(Dispatchers.Main) {
+                            whisperHasModel = whisperMgr.hasModel()
+                            whisperDownloading = false
+                        }
+                    }
+                }
+            },
+            enabled = !whisperDownloading && whisperUrl.isNotBlank() && whisperSha256.length >= 64
+        ) {
+            Text(
+                if (whisperDownloading)
+                    stringResource(id = R.string.whisper_model_downloading, whisperProgress)
+                else stringResource(id = R.string.whisper_model_download)
+            )
+        }
         ListItem(
             headlineContent = { Text(stringResource(id = R.string.on_device_model_status, modelStatus)) },
             trailingContent = {

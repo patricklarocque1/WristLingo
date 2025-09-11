@@ -1,0 +1,104 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"whisper.cpp/ggml/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 288,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 289,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 377,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"C:/Users/boypa/Documents/GitHub/WristLingo/app/build/intermediates/cxx/Debug/3r4j1113/obj/arm64-v8a/libggml.so"
+			],
+			"targetId" : "ggml::@74253485f3a7ec30fb13",
+			"targetIndex" : 0,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "include",
+			"paths" : 
+			[
+				"whisper.cpp/ggml/include/ggml.h",
+				"whisper.cpp/ggml/include/ggml-cpu.h",
+				"whisper.cpp/ggml/include/ggml-alloc.h",
+				"whisper.cpp/ggml/include/ggml-backend.h",
+				"whisper.cpp/ggml/include/ggml-blas.h",
+				"whisper.cpp/ggml/include/ggml-cann.h",
+				"whisper.cpp/ggml/include/ggml-cpp.h",
+				"whisper.cpp/ggml/include/ggml-cuda.h",
+				"whisper.cpp/ggml/include/ggml-opt.h",
+				"whisper.cpp/ggml/include/ggml-metal.h",
+				"whisper.cpp/ggml/include/ggml-rpc.h",
+				"whisper.cpp/ggml/include/ggml-sycl.h",
+				"whisper.cpp/ggml/include/ggml-vulkan.h",
+				"whisper.cpp/ggml/include/ggml-webgpu.h",
+				"whisper.cpp/ggml/include/gguf.h"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"C:/Users/boypa/Documents/GitHub/WristLingo/app/build/intermediates/cxx/Debug/3r4j1113/obj/arm64-v8a/libggml-base.so"
+			],
+			"targetId" : "ggml-base::@74253485f3a7ec30fb13",
+			"targetIndex" : 1,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/ggml",
+			"paths" : 
+			[
+				"C:/Users/boypa/Documents/GitHub/WristLingo/app/.cxx/Debug/3r4j1113/arm64-v8a/whisper.cpp/ggml/ggml-config.cmake",
+				"C:/Users/boypa/Documents/GitHub/WristLingo/app/.cxx/Debug/3r4j1113/arm64-v8a/whisper.cpp/ggml/ggml-version.cmake"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "whisper.cpp/ggml",
+		"source" : "whisper.cpp/ggml"
+	}
+}

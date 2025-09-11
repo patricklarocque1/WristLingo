@@ -28,8 +28,8 @@ jobs:
           java-version: '21'
           cache: gradle
 
-      # Use Android 34 (stable) to avoid 404s on preview packages
-      - name: Install Android SDK packages (stable)
+      # Use Android 34 (stable) + NDK/CMake for native build
+      - name: Install Android SDK packages (stable + NDK/CMake)
         uses: android-actions/setup-android@v3
         with:
           packages: |
@@ -37,6 +37,8 @@ jobs:
             cmdline-tools;latest
             platforms;android-34
             build-tools;34.0.0
+            ndk;27.0.12077973
+            cmake;3.22.1
 
       - name: Accept Android SDK licenses
         run: yes | sdkmanager --licenses
@@ -49,10 +51,17 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
-      - name: Build (offline flavor) + unit tests
+      - name: Build (offline flavor) + unit tests (override to API 34 on CI)
         run: |
           ./gradlew --version
-          ./gradlew clean :app:assembleOfflineDebug :wear:assembleOfflineDebug :app:testOfflineDebug \
+          ./gradlew clean \
+            -Pandroid.compileSdk=34 \
+            -Pandroid.targetSdk=34 \
+            -Pandroid.buildToolsVersion=34.0.0 \
+            :app:externalNativeBuildOfflineDebug \
+            :app:assembleOfflineDebug \
+            :wear:assembleOfflineDebug \
+            :app:testOfflineDebug \
             --stacktrace --no-daemon --warning-mode all
 
       - name: Upload app APKs

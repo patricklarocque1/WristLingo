@@ -7,6 +7,7 @@ plugins {
 android {
     namespace = "com.wristlingo.wear"
     compileSdk = (project.findProperty("android.compileSdk") as String).toInt()
+    buildToolsVersion = project.property("android.buildToolsVersion") as String
 
     defaultConfig {
         applicationId = "com.wristlingo.wear"

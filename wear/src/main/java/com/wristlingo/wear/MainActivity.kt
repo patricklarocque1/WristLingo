@@ -9,8 +9,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.wear.compose.material.MaterialTheme
-import com.wristlingo.core.transport.WearMessageClientDl
+import com.wristlingo.wear.transport.WearMessageClientDl
 import com.wristlingo.wear.asr.AsrController
+import com.wristlingo.wear.audio.PcmStreamer
 import com.wristlingo.wear.ui.WearApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,8 +27,10 @@ class MainActivity : Activity() {
     private lateinit var composeView: ComposeView
     private lateinit var asr: AsrController
     private lateinit var dl: WearMessageClientDl
+    private var pcm: PcmStreamer? = null
     private var unregisterDl: (() -> Unit)? = null
     private var tts: TextToSpeech? = null
+    @Volatile private var isDisconnected: Boolean = false
 
     private val scope = CoroutineScope(Dispatchers.Main)
     private val seqGen = AtomicLong(1L)
@@ -46,10 +49,12 @@ class MainActivity : Activity() {
             MaterialTheme {
                 WearApp(
                     activity = this,
-                    onPttStart = { startAsr() },
-                    onPttStop = { stopAsr() },
+                    onPttStart = { startCapture() },
+                    onPttStop = { stopCapture() },
                     partialText = partialText,
-                    captionText = captionText
+                    captionText = captionText,
+                    recording = (pcm?.isRecording == true),
+                    disconnected = isDisconnected
                 )
             }
         }
@@ -71,6 +76,7 @@ class MainActivity : Activity() {
 
         // Listen for caption updates from phone
         unregisterDl = dl.addListener { topic, payload ->
+            isDisconnected = false
             if (topic == "caption/update") {
                 try {
                     val obj = JSONObject(payload)
@@ -88,15 +94,31 @@ class MainActivity : Activity() {
                 } catch (_: Throwable) {}
             }
         }
+
+        // Periodically check connection
+        scope.launch(Dispatchers.IO) {
+            while (true) {
+                try {
+                    isDisconnected = !dl.hasConnectedNode()
+                } catch (_: Throwable) {
+                    isDisconnected = true
+                }
+                launch(Dispatchers.Main) { composeView.invalidate() }
+                kotlinx.coroutines.delay(1000)
+            }
+        }
     }
 
-    private fun startAsr() {
-        val localeTag = try { Locale.getDefault().toLanguageTag() } catch (_: Throwable) { null }
-        asr.start(localeTag)
+    private fun startCapture() {
+        // For now, always stream PCM to phone Whisper path
+        val streamer = PcmStreamer(dl, scope)
+        pcm = streamer
+        streamer.start(16000)
     }
 
-    private fun stopAsr() {
-        asr.stop()
+    private fun stopCapture() {
+        pcm?.stop()
+        pcm = null
     }
 
     private fun sendUtterance(text: String) {
