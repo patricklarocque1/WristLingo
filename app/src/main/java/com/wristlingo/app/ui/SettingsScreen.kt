@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.CoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ fun SettingsScreen(
     settings: Settings,
     translationProvider: TranslationProvider,
     isOfflineFlavor: Boolean,
+    scope: CoroutineScope,
     modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null
 ) {
@@ -84,7 +86,7 @@ fun SettingsScreen(
                     settings.autoSpeak = checked
                 }
             )
-            Text("Auto speak translated text")
+            Text("Speak translations")
         }
 
         Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
@@ -100,7 +102,7 @@ fun SettingsScreen(
             Text(cloudLabel)
         }
 
-        Divider()
+        HorizontalDivider()
         Spacer(modifier = Modifier.height(8.dp))
         Text("On-device model status: $modelStatus")
         Spacer(modifier = Modifier.height(8.dp))
@@ -108,7 +110,7 @@ fun SettingsScreen(
             onClick = {
                 isDownloading = true
                 // Kick model download
-                kotlinx.coroutines.GlobalScope.launch(Dispatchers.IO) {
+                scope.launch(Dispatchers.IO) {
                     try { translationProvider.downloadTargetModelIfNeeded(target) } catch (_: Throwable) {}
                     val downloaded = try { translationProvider.isModelDownloaded(target) } catch (_: Throwable) { false }
                     withContext(Dispatchers.Main) {

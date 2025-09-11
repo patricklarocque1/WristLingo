@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.wristlingo.app"
-    compileSdk = 34
+    compileSdk = (project.findProperty("android.compileSdk") as String).toInt()
 
     defaultConfig {
         applicationId = "com.wristlingo.app"
-        minSdk = 26
-        targetSdk = 34
+        minSdk = (project.findProperty("android.minSdk") as String).toInt()
+        targetSdk = (project.findProperty("android.targetSdk") as String).toInt()
         versionCode = 1
         versionName = "1.0"
 

@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.wristlingo.wear"
-    compileSdk = 34
+    compileSdk = (project.findProperty("android.compileSdk") as String).toInt()
 
     defaultConfig {
         applicationId = "com.wristlingo.wear"
-        minSdk = 30
-        targetSdk = 34
+        minSdk = (project.findProperty("android.wear.minSdk") as String).toInt()
+        targetSdk = (project.findProperty("android.targetSdk") as String).toInt()
         versionCode = 1
         versionName = "1.0"
 
@@ -73,5 +73,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(project(":core"))
     implementation(libs.play.services.wearable)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
 }
 

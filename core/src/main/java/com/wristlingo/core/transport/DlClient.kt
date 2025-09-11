@@ -8,6 +8,6 @@ interface DlClient {
     suspend fun send(topic: String, payload: String)
 
     /** Register a listener for inbound messages. Return a function to unregister. */
-    fun setListener(listener: (topic: String, payload: String) -> Unit): () -> Unit
+    fun addListener(listener: (topic: String, payload: String) -> Unit): () -> Unit
 }
 
