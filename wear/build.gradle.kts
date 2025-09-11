@@ -1,3 +1,4 @@
+// Fixed ABI config for Wear OS: 64-bit only (arm64-v8a) / splits disabled; removed NDK from :wear
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -35,6 +36,20 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    // Disable ABI splits for Wear to avoid accidental 32-bit packaging; :app handles native/NDK
+    splits {
+        abi {
+            isEnable = false
+        }
+    }
+
+    // Packaging sanity for JNI libs
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
     }
 
     flavorDimensions += "mode"
@@ -77,4 +92,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 }
+
+// Local verify: gradlew clean :wear:assembleOfflineDebug
+// Install to arm64 Wear emulator/device
 
