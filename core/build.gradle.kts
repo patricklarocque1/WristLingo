@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace = "com.wristlingo.core"
-    compileSdk = 34
+    compileSdk = (project.findProperty("android.compileSdk") as String).toInt()
 
     defaultConfig {
-        minSdk = 26
-        targetSdk = 34
+        minSdk = (project.findProperty("android.minSdk") as String).toInt()
+        targetSdk = (project.findProperty("android.targetSdk") as String).toInt()
 
         val isCi = System.getenv("CI") == "true"
         buildConfigField("boolean", "CI", isCi.toString())
@@ -32,6 +32,8 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
+    buildToolsVersion = project.findProperty("android.buildToolsVersion") as String
+    ndkVersion = project.findProperty("android.ndkVersion") as String
 }
 
 kotlin {

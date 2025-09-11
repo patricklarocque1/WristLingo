@@ -26,7 +26,7 @@ class TranslatorOrchestrator(
     private val tts = if (dl is WearMessageClientDl) TtsHelper(context, dl) else TtsHelper(context, null)
 
     fun start() {
-        unregister = dl.setListener { topic, payload ->
+        unregister = dl.addListener { topic, payload ->
             if (topic == "utterance/text") {
                 scope.launch(Dispatchers.IO) {
                     handleUtterance(payload)
@@ -44,7 +44,7 @@ class TranslatorOrchestrator(
         val obj = JSONObject(payload)
         val seq = obj.optLong("seq")
         val text = obj.optString("text")
-        val src = obj.optString("srcLang", null)
+        val src = if (obj.has("srcLang")) obj.optString("srcLang") else null
         val tgt = translationProvider.defaultTarget()
 
         // Ensure an active session exists for the current target language

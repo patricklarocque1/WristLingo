@@ -11,7 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +34,7 @@ fun SessionsScreen(
     onOpenSession: (Long) -> Unit,
     onOpenSettings: () -> Unit
 ) {
-    val sessions by repository.observeRecentSessions().collectAsState(initial = emptyList())
+    val sessions by repository.observeRecentSessionPreviews().collectAsState(initial = emptyList())
     Column(modifier = modifier.padding(16.dp)) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(
@@ -47,25 +48,32 @@ fun SessionsScreen(
         Spacer(modifier = Modifier.height(12.dp))
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(sessions) { session ->
-                SessionRow(session = session, onClick = { onOpenSession(session.id) })
-                Divider()
+                SessionRow(
+                    session = session,
+                    onClick = { onOpenSession(session.id) }
+                )
+                HorizontalDivider()
             }
         }
     }
 }
 
 @Composable
-private fun SessionRow(session: SessionEntity, onClick: () -> Unit) {
+private fun SessionRow(session: SessionRepository.SessionPreview, onClick: () -> Unit) {
     val dateText = rememberDate(session.startedAtEpochMs)
-    Row(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(vertical = 8.dp)
             .clickable { onClick() }
-            .padding(vertical = 12.dp)
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text(text = dateText, style = MaterialTheme.typography.bodyLarge)
-            Text(text = "Target: ${session.targetLang}", style = MaterialTheme.typography.bodyMedium)
+        Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
+            Text(text = session.title ?: "(untitled)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(text = dateText, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                Text(text = "Target: ${session.targetLang}", style = MaterialTheme.typography.bodySmall)
+            }
         }
     }
 }

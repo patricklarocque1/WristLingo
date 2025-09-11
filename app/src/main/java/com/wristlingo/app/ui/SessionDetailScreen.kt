@@ -7,13 +7,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -47,7 +49,7 @@ fun SessionDetailScreen(
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(utterances) { utt ->
                 UtteranceRow(utt)
-                Divider()
+                HorizontalDivider()
             }
         }
     }
@@ -56,13 +58,22 @@ fun SessionDetailScreen(
 @Composable
 private fun UtteranceRow(utt: UtteranceEntity) {
     val timeText = rememberTime(utt.timestampEpochMs)
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(vertical = 8.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.Top
     ) {
-        Text(text = timeText, style = MaterialTheme.typography.bodySmall)
-        Text(text = "${utt.srcLang ?: "?"}: ${utt.srcText}", style = MaterialTheme.typography.bodyMedium)
-        Text(text = "${utt.dstLang}: ${utt.dstText}", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = timeText, style = MaterialTheme.typography.bodySmall)
+            Text(text = utt.srcText, style = MaterialTheme.typography.bodyMedium)
+            Text(text = utt.srcLang ?: "?", style = MaterialTheme.typography.labelSmall)
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = utt.dstText, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+            Text(text = utt.dstLang, style = MaterialTheme.typography.labelSmall)
+        }
     }
 }
 

@@ -16,6 +16,20 @@ interface SessionDao {
 
     @Query("SELECT * FROM sessions WHERE id = :id LIMIT 1")
     suspend fun getById(id: Long): SessionEntity?
+
+    @Query(
+        """
+        SELECT s.*, (
+            SELECT src_text FROM utterances u
+            WHERE u.session_id = s.id
+            ORDER BY ts ASC LIMIT 1
+        ) AS first_src
+        FROM sessions s
+        ORDER BY started_at DESC
+        LIMIT :limit
+        """
+    )
+    fun observeRecentWithFirst(limit: Int = 50): Flow<List<SessionWithFirst>>
 }
 
 @Dao
@@ -26,4 +40,11 @@ interface UtteranceDao {
     @Query("SELECT * FROM utterances WHERE session_id = :sessionId ORDER BY ts ASC")
     fun observeBySession(sessionId: Long): Flow<List<UtteranceEntity>>
 }
+
+data class SessionWithFirst(
+    val id: Long,
+    val started_at: Long,
+    val target_lang: String,
+    val first_src: String?
+)
 

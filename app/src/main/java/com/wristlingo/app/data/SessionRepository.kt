@@ -1,6 +1,7 @@
 package com.wristlingo.app.data
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class SessionRepository(private val database: AppDatabase) {
 
@@ -20,6 +21,26 @@ class SessionRepository(private val database: AppDatabase) {
 
     fun observeRecentSessions(limit: Int = 50): Flow<List<SessionEntity>> {
         return sessionDao.observeRecent(limit)
+    }
+
+    data class SessionPreview(
+        val id: Long,
+        val startedAtEpochMs: Long,
+        val targetLang: String,
+        val title: String?
+    )
+
+    fun observeRecentSessionPreviews(limit: Int = 50): Flow<List<SessionPreview>> {
+        return sessionDao.observeRecentWithFirst(limit).map { list ->
+            list.map { s ->
+                SessionPreview(
+                    id = s.id,
+                    startedAtEpochMs = s.started_at,
+                    targetLang = s.target_lang,
+                    title = s.first_src?.lineSequence()?.firstOrNull()?.take(80)
+                )
+            }
+        }
     }
 
     suspend fun getSessionById(id: Long): SessionEntity? {

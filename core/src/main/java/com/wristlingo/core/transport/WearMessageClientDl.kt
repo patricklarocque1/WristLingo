@@ -53,7 +53,7 @@ class WearMessageClientDl(
         }
     }
 
-    override fun setListener(listener: (topic: String, payload: String) -> Unit): () -> Unit {
+    override fun addListener(listener: (topic: String, payload: String) -> Unit): () -> Unit {
         this.listener = listener
         return {
             this.listener = null
