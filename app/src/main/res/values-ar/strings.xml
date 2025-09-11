@@ -1,0 +1,35 @@
+<resources>
+    <string name="home_title">ريست لينغو</string>
+    <string name="title_settings">الإعدادات</string>
+    <string name="action_back">رجوع</string>
+
+    <string name="search_sessions">ابحث في الجلسات</string>
+    <string name="live">مباشر</string>
+    <string name="all">الكل</string>
+
+    <string name="language">اللغة</string>
+    <string name="target_language">اللغة المستهدفة</string>
+    <string name="change">تغيير</string>
+    <string name="search_languages">ابحث عن اللغات</string>
+    <string name="selected">محدد</string>
+    <string name="select">تحديد</string>
+
+    <string name="speech">الصوت</string>
+    <string name="speak_translations">نطق الترجمات</string>
+    <string name="translation">الترجمة</string>
+    <string name="use_cloud_translate">استخدم الترجمة السحابية</string>
+    <string name="use_cloud_translate_offline_disabled">معطل في وضع عدم الاتصال</string>
+    <string name="on_device_model_status">حالة نموذج الجهاز: %s</string>
+    <string name="download_model">تنزيل النموذج</string>
+    <string name="downloading">جارٍ التنزيل…</string>
+
+    <string name="session_title">الجلسة #%1$d</string>
+    <string name="pause">إيقاف مؤقت</string>
+    <string name="star">مفضلة</string>
+    <string name="end">إنهاء</string>
+
+    <string name="downloaded">تم التنزيل</string>
+    <string name="not_downloaded">غير مُنزّل</string>
+    <string name="untitled">(بدون عنوان)</string>
+</resources>
+
