@@ -4,18 +4,20 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.ComposeView
 import androidx.wear.compose.material.MaterialTheme
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.wristlingo.wear.transport.WearMessageClientDl
 import com.wristlingo.wear.asr.AsrController
 import com.wristlingo.wear.audio.PcmStreamer
 import com.wristlingo.wear.ui.WearApp
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -23,8 +25,7 @@ import org.json.JSONObject
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicLong
 
-class MainActivity : Activity() {
-    private lateinit var composeView: ComposeView
+class MainActivity : ComponentActivity() {
     private lateinit var asr: AsrController
     private lateinit var dl: WearMessageClientDl
     private var pcm: PcmStreamer? = null
@@ -32,7 +33,6 @@ class MainActivity : Activity() {
     private var tts: TextToSpeech? = null
     @Volatile private var isDisconnected: Boolean = false
 
-    private val scope = CoroutineScope(Dispatchers.Main)
     private val seqGen = AtomicLong(1L)
 
     // UI state
@@ -44,8 +44,7 @@ class MainActivity : Activity() {
         asr = AsrController(this)
         dl = WearMessageClientDl(applicationContext)
 
-        composeView = ComposeView(this)
-        composeView.setContent {
+        setContent {
             MaterialTheme {
                 WearApp(
                     activity = this,
@@ -58,19 +57,22 @@ class MainActivity : Activity() {
                 )
             }
         }
-        setContentView(composeView)
 
-        // Collect ASR partials/finals
-        scope.launch {
-            asr.partial.collectLatest { text ->
-                partialText = text
-            }
-        }
-        scope.launch(Dispatchers.IO) {
-            asr.finalText.collectLatest { text ->
-                sendUtterance(text)
-                // Clear local partial after sending final
-                launch(Dispatchers.Main) { partialText = null }
+        // Collect ASR partials/finals in a lifecycle-aware way to avoid duplicate collectors.
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    asr.partial.collectLatest { text ->
+                        partialText = text
+                    }
+                }
+                launch(Dispatchers.IO) {
+                    asr.finalText.collectLatest { text ->
+                        sendUtterance(text)
+                        // Clear local partial after sending final
+                        launch(Dispatchers.Main) { partialText = null }
+                    }
+                }
             }
         }
 
@@ -81,7 +83,7 @@ class MainActivity : Activity() {
                 try {
                     val obj = JSONObject(payload)
                     val text = obj.optString("text")
-                    scope.launch(Dispatchers.Main) {
+                    lifecycleScope.launch(Dispatchers.Main) {
                         captionText = text
                     }
                 } catch (_: Throwable) {}
@@ -90,28 +92,33 @@ class MainActivity : Activity() {
                     val obj = JSONObject(payload)
                     val text = obj.optString("text")
                     val lang = obj.optString("lang")
-                    scope.launch(Dispatchers.Main) { speakLocal(text, lang) }
+                    lifecycleScope.launch(Dispatchers.Main) { speakLocal(text, lang) }
                 } catch (_: Throwable) {}
             }
         }
 
-        // Periodically check connection
-        scope.launch(Dispatchers.IO) {
-            while (true) {
-                try {
-                    isDisconnected = !dl.hasConnectedNode()
-                } catch (_: Throwable) {
-                    isDisconnected = true
+        // Periodically check connection in a lifecycle-aware way
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch(Dispatchers.IO) {
+                    while (true) {
+                        try {
+                            isDisconnected = !dl.hasConnectedNode()
+                        } catch (_: Throwable) {
+                            isDisconnected = true
+                        }
+                        // Trigger recomposition by touching state
+                        launch(Dispatchers.Main) { captionText = captionText }
+                        kotlinx.coroutines.delay(1000)
+                    }
                 }
-                launch(Dispatchers.Main) { composeView.invalidate() }
-                kotlinx.coroutines.delay(1000)
             }
         }
     }
 
     private fun startCapture() {
         // For now, always stream PCM to phone Whisper path
-        val streamer = PcmStreamer(dl, scope)
+        val streamer = PcmStreamer(dl, lifecycleScope)
         pcm = streamer
         streamer.start(16000)
     }
@@ -144,7 +151,7 @@ class MainActivity : Activity() {
         asr.release()
         try { tts?.stop() } catch (_: Throwable) {}
         try { tts?.shutdown() } catch (_: Throwable) {}
-        scope.cancel()
+        // lifecycleScope is cancelled automatically
     }
 
     private fun ensureTts(): TextToSpeech {

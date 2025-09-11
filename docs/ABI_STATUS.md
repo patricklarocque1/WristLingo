@@ -38,3 +38,4 @@
   - `./gradlew clean :wear:assembleOfflineDebug`
 - Full build (defaults to offline flavor):
   - `./gradlew clean :app:externalNativeBuildOfflineDebug :app:assembleOfflineDebug :wear:assembleOfflineDebug`
+

@@ -15,10 +15,22 @@ import kotlinx.coroutines.flow.asSharedFlow
 class AsrController(private val activity: Activity) {
     private var speechRecognizer: SpeechRecognizer? = null
 
-    private val _partial = MutableSharedFlow<String>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    // Non-default overflow requires replay > 0 or extraBufferCapacity > 0 to avoid IAE.
+    // Partials/transient UI updates profile
+    private val _partial = MutableSharedFlow<String>(
+        replay = 1,
+        extraBufferCapacity = 64,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
     val partial = _partial.asSharedFlow()
 
-    private val _finalText = MutableSharedFlow<String>(replay = 0, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    // Non-default overflow requires replay > 0 or extraBufferCapacity > 0 to avoid IAE.
+    // Finals/event lines profile
+    private val _finalText = MutableSharedFlow<String>(
+        replay = 0,
+        extraBufferCapacity = 16,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
     val finalText = _finalText.asSharedFlow()
 
     private fun ensureRecognizer(): Boolean {
@@ -96,6 +108,15 @@ class AsrController(private val activity: Activity) {
     fun release() {
         speechRecognizer?.destroy()
         speechRecognizer = null
+    }
+
+    // Testing helpers (no-op in production usage)
+    internal fun emitPartialForTest(text: String) {
+        _partial.tryEmit(text)
+    }
+
+    internal fun emitFinalForTest(text: String) {
+        _finalText.tryEmit(text)
     }
 
     companion object {
