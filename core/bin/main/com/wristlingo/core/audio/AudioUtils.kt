@@ -13,10 +13,10 @@ object AudioCodec {
     fun encodePcmMessage(header: AudioHeader, pcmBytes: ByteArray): String {
         val b64 = Base64.getEncoder().encodeToString(pcmBytes)
         val headerJson = "{" +
-            "\"sr\":${'$'}{header.sr}," +
-            "\"bits\":${'$'}{header.bits}," +
-            "\"seq\":${'$'}{header.seq}," +
-            "\"end\":${'$'}{header.end}" +
+            "\"sr\":${header.sr}," +
+            "\"bits\":${header.bits}," +
+            "\"seq\":${header.seq}," +
+            "\"end\":${header.end}" +
             "}"
         return "{" +
             "\"header\":" + headerJson + "," +

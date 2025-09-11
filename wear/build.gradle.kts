@@ -1,4 +1,4 @@
-// Fixed ABI config for Wear OS: 64-bit only (arm64-v8a) / splits disabled; removed NDK from :wear
+// Fixed ABI for Wear OS: removed NDK; disabled ABI splits (arm64-only devices).
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)

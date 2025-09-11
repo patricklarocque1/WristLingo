@@ -30,15 +30,16 @@ class PcmStreamer(
             val frameSamples = (sr * frameMs) / 1000
             val frameBytes = frameSamples * 2
             val bufferSize = maxOf(minBuf, frameBytes)
-            val recorder = AudioRecord(
-                MediaRecorder.AudioSource.MIC,
-                sr,
-                channelConfig,
-                audioFormat,
-                bufferSize
-            )
+            var recorder: AudioRecord? = null
             val buf = ByteArray(frameBytes)
             try {
+                recorder = AudioRecord(
+                    MediaRecorder.AudioSource.MIC,
+                    sr,
+                    channelConfig,
+                    audioFormat,
+                    bufferSize
+                )
                 recorder.startRecording()
                 isRecording = true
                 while (true) {
@@ -55,10 +56,13 @@ class PcmStreamer(
                         .toString()
                     try { dl.send("audio/pcm", payload) } catch (_: Throwable) {}
                 }
+            } catch (_: SecurityException) {
+                isRecording = false
+                return@launch
             } finally {
                 isRecording = false
-                try { recorder.stop() } catch (_: Throwable) {}
-                try { recorder.release() } catch (_: Throwable) {}
+                try { recorder?.stop() } catch (_: Throwable) {}
+                try { recorder?.release() } catch (_: Throwable) {}
             }
         }
     }
