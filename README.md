@@ -32,6 +32,24 @@ Hands‑free, on‑the‑go translation. The Wear OS app captures nearby speech 
 # ./gradlew :app:assembleOfflineDebug :wear:assembleOfflineDebug
 ```
 
+## Local build notes (API 36)
+
+Android Gradle Plugin targets API 36 here. Ensure you have the following installed via Android SDK Manager:
+
+- Android SDK Platform 36
+- Android SDK Build-Tools 36.0.0
+
+In Android Studio:
+- Open Settings/Preferences → Appearance & Behavior → System Settings → Android SDK
+- SDK Platforms tab → check “Android 14 (UpsideDownCake) Extension Level 7 / 36” (or latest 36)
+- SDK Tools tab → check “Android SDK Build-Tools 36.0.0”
+
+If building from command line, set ANDROID_HOME or use the SDK bundled with Android Studio. Example wrapper build:
+
+```bash
+./gradlew :app:assembleOfflineDebug :wear:assembleOfflineDebug
+```
+
 ## Optional Cloud (off by default)
 - **Translation**: Google Cloud Translation (free tier generous; toggle in Settings).
 - **Speech**: Cloud STT v2 ($/min; toggle in Settings).

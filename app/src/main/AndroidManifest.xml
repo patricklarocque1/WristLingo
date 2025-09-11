@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <application android:label="WristLingo">
+    <application android:label="WristLingo" android:supportsRtl="true">
         <activity
             android:name="com.wristlingo.app.MainActivity"
             android:exported="true">

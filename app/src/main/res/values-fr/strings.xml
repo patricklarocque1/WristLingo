@@ -1,0 +1,35 @@
+<resources>
+    <string name="home_title">WristLingo</string>
+    <string name="title_settings">Paramètres</string>
+    <string name="action_back">Retour</string>
+
+    <string name="search_sessions">Rechercher des sessions</string>
+    <string name="live">En direct</string>
+    <string name="all">Tous</string>
+
+    <string name="language">Langue</string>
+    <string name="target_language">Langue cible</string>
+    <string name="change">Modifier</string>
+    <string name="search_languages">Rechercher des langues</string>
+    <string name="selected">Sélectionné</string>
+    <string name="select">Sélectionner</string>
+
+    <string name="speech">Voix</string>
+    <string name="speak_translations">Prononcer les traductions</string>
+    <string name="translation">Traduction</string>
+    <string name="use_cloud_translate">Utiliser la traduction cloud</string>
+    <string name="use_cloud_translate_offline_disabled">Désactivé en mode hors ligne</string>
+    <string name="on_device_model_status">Statut du modèle sur l\'appareil : %s</string>
+    <string name="download_model">Télécharger le modèle</string>
+    <string name="downloading">Téléchargement…</string>
+
+    <string name="session_title">Session n°%1$d</string>
+    <string name="pause">Pause</string>
+    <string name="star">Favori</string>
+    <string name="end">Terminer</string>
+
+    <string name="downloaded">Téléchargé</string>
+    <string name="not_downloaded">Non téléchargé</string>
+    <string name="untitled">(sans titre)</string>
+</resources>
+
