@@ -19,7 +19,7 @@
     <string name="translation">Traduction</string>
     <string name="use_cloud_translate">Utiliser la traduction cloud</string>
     <string name="use_cloud_translate_offline_disabled">Désactivé en mode hors ligne</string>
-    <string name="on_device_model_status">Statut du modèle sur l\'appareil : %s</string>
+    <string name="on_device_model_status">Statut du modèle sur l’appareil : %s</string>
     <string name="download_model">Télécharger le modèle</string>
     <string name="downloading">Téléchargement…</string>
 
@@ -31,5 +31,13 @@
     <string name="downloaded">Téléchargé</string>
     <string name="not_downloaded">Non téléchargé</string>
     <string name="untitled">(sans titre)</string>
+    <string name="whisper_phone_section">Whisper (téléphone)</string>
+    <string name="whisper_phone_toggle">Utiliser Whisper sur le téléphone (la montre envoie l’audio)</string>
+    <string name="whisper_model_path">Chemin du modèle Whisper</string>
+    <string name="whisper_model_status">Modèle Whisper : %1$s</string>
+    <string name="whisper_model_url">URL du modèle Whisper</string>
+    <string name="whisper_model_sha256">SHA-256 du modèle Whisper</string>
+    <string name="whisper_model_download">Télécharger le modèle Whisper</string>
+    <string name="whisper_model_downloading">Téléchargement… %1$d%%</string>
 </resources>
 

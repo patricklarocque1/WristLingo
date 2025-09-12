@@ -31,5 +31,13 @@
     <string name="downloaded">Downloaded</string>
     <string name="not_downloaded">Not downloaded</string>
     <string name="untitled">(untitled)</string>
+    <string name="whisper_phone_section">Whisper (phone)</string>
+    <string name="whisper_phone_toggle">Use Whisper on phone (watch sends audio)</string>
+    <string name="whisper_model_path">Whisper model path</string>
+    <string name="whisper_model_status">Whisper model: %1$s</string>
+    <string name="whisper_model_url">Whisper model URL</string>
+    <string name="whisper_model_sha256">Whisper model SHA-256</string>
+    <string name="whisper_model_download">Download Whisper model</string>
+    <string name="whisper_model_downloading">Downloading… %1$d%%</string>
 </resources>
 

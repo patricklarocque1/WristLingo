@@ -1,3 +1,4 @@
+// Fixed ABI for Wear OS: removed NDK; disabled ABI splits (arm64-only devices).
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,6 +8,7 @@ plugins {
 android {
     namespace = "com.wristlingo.wear"
     compileSdk = (project.findProperty("android.compileSdk") as String).toInt()
+    buildToolsVersion = project.property("android.buildToolsVersion") as String
 
     defaultConfig {
         applicationId = "com.wristlingo.wear"
@@ -34,6 +36,20 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    // Disable ABI splits for Wear to avoid accidental 32-bit packaging; :app handles native/NDK
+    splits {
+        abi {
+            isEnable = false
+        }
+    }
+
+    // Packaging sanity for JNI libs
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
     }
 
     flavorDimensions += "mode"
@@ -75,5 +91,11 @@ dependencies {
     implementation(libs.play.services.wearable)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
 }
+
+// Local verify: gradlew clean :wear:assembleOfflineDebug
+// Install to arm64 Wear emulator/device
 

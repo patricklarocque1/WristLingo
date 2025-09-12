@@ -31,5 +31,13 @@
     <string name="downloaded">Descargado</string>
     <string name="not_downloaded">No descargado</string>
     <string name="untitled">(sin título)</string>
+    <string name="whisper_phone_section">Whisper (teléfono)</string>
+    <string name="whisper_phone_toggle">Usar Whisper en el teléfono (el reloj envía audio)</string>
+    <string name="whisper_model_path">Ruta del modelo de Whisper</string>
+    <string name="whisper_model_status">Modelo Whisper: %1$s</string>
+    <string name="whisper_model_url">URL del modelo Whisper</string>
+    <string name="whisper_model_sha256">SHA-256 del modelo Whisper</string>
+    <string name="whisper_model_download">Descargar modelo Whisper</string>
+    <string name="whisper_model_downloading">Descargando… %1$d%%</string>
 </resources>
 

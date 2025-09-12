@@ -1,0 +1,16 @@
+.gradle/
+**/build/
+.idea/
+local.properties
+java_pid*.hprof
+
+# Gradle local caches & downloads
+gradle/caches/
+gradle/daemon/
+gradle/jdks/
+gradle/native/
+gradle/kotlin-profile/
+gradle/transforms-4/
+gradle/wrapper/dists/
+
+

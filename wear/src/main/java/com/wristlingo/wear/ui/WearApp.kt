@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
+import androidx.wear.compose.material.Chip
+import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.Text
@@ -26,7 +28,9 @@ fun WearApp(
     onPttStart: () -> Unit,
     onPttStop: () -> Unit,
     partialText: String?,
-    captionText: String?
+    captionText: String?,
+    recording: Boolean,
+    disconnected: Boolean
 ) {
     Scaffold {
         Box(modifier = Modifier.fillMaxSize().padding(8.dp)) {
@@ -34,8 +38,17 @@ fun WearApp(
                 verticalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Top: current caption
-                Text(text = captionText ?: "")
+                // Top: status + current caption
+                Column {
+                    if (disconnected) {
+                        Chip(
+                            onClick = {},
+                            label = { Text("Disconnected") },
+                            colors = ChipDefaults.chipColors()
+                        )
+                    }
+                    Text(text = captionText ?: "")
+                }
 
                 // Center: ring PTT and partial below
                 Column(
@@ -58,7 +71,7 @@ fun WearApp(
                             },
                         shape = CircleShape
                     ) {
-                        Text("PTT")
+                        Text(if (recording) "REC" else "PTT")
                     }
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(text = partialText ?: "")

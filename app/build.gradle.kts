@@ -1,13 +1,16 @@
+// NDK ABI filters normalized to arm64-v8a only.
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "com.wristlingo.app"
     compileSdk = (project.findProperty("android.compileSdk") as String).toInt()
+    buildToolsVersion = project.property("android.buildToolsVersion") as String
+    ndkVersion = project.property("android.ndkVersion") as String
 
     defaultConfig {
         applicationId = "com.wristlingo.app"
@@ -21,6 +24,10 @@ android {
 
         // Ensure offline flavor is used by default if not specified
         missingDimensionStrategy("mode", "offline")
+
+        ndk {
+            abiFilters += listOf("arm64-v8a")
+        }
     }
 
     buildTypes {
@@ -35,6 +42,12 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+        }
     }
 
     flavorDimensions += "mode"
@@ -77,7 +90,7 @@ dependencies {
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
-    kapt(libs.room.compiler)
+    ksp(libs.room.compiler)
 
     implementation(project(":core"))
     implementation(libs.play.services.wearable)
@@ -85,5 +98,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.play.services)
+
+    testImplementation(kotlin("test"))
 }
 

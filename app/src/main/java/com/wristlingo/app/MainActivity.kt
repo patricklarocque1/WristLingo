@@ -19,7 +19,8 @@ import com.wristlingo.app.data.SessionRepository
 import com.wristlingo.app.transport.TranslationProvider
 import com.wristlingo.app.transport.TranslatorOrchestrator
 import com.wristlingo.core.settings.Settings
-import com.wristlingo.core.transport.WearMessageClientDl
+import com.wristlingo.app.SettingsImpl
+import com.wristlingo.app.transport.WearMessageClientDl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -31,7 +32,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val settings = Settings(this)
+        val settings: Settings = SettingsImpl(this)
         val db = AppDatabase.getInstance(this)
         val repo = SessionRepository(db)
         val dl = WearMessageClientDl(applicationContext)

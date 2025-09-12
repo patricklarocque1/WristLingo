@@ -2,6 +2,9 @@
     <uses-feature android:name="android.hardware.type.watch" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <application android:label="WristLingo Wear">
+        <meta-data
+            android:name="com.google.android.wearable.standalone"
+            android:value="false" />
         <activity
             android:name="com.wristlingo.wear.MainActivity"
             android:exported="true">
