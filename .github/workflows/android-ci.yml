@@ -28,9 +28,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
-
       - name: Set up Java 21 (Temurin) + Gradle cache
         uses: actions/setup-java@v4
         with:
@@ -41,14 +38,14 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android packages (API 36 + NDK/CMake)
+      - name: Install Android packages (API 34 + NDK/CMake)
         run: |
           set -euxo pipefail
           sdkmanager --install \
             "cmdline-tools;latest" \
             "platform-tools" \
-            "platforms;android-36" \
-            "build-tools;36.0.0" \
+            "platforms;android-34" \
+            "build-tools;34.0.0" \
             "ndk;29.0.14033849" \
             "cmake;3.22.1"
           yes | sdkmanager --licenses
@@ -73,11 +70,18 @@ jobs:
           ENB_TASK=":app:externalNativeBuild${FL_CAP}${BUILD_TYPE}"
 
           ./gradlew --stacktrace --no-daemon --warning-mode all \
+            -Pandroid.compileSdk=34 \
+            -Pandroid.targetSdk=34 \
+            -Pandroid.buildToolsVersion=34.0.0 \
             ${ENB_TASK} ${APP_TASK} ${WEAR_TASK}
 
           # Run unit tests only for Debug to save time
           if [ "${BUILD_TYPE}" = "Debug" ]; then
-            ./gradlew --stacktrace --no-daemon :app:test${FL_CAP}${BUILD_TYPE}
+            ./gradlew --stacktrace --no-daemon \
+              -Pandroid.compileSdk=34 \
+              -Pandroid.targetSdk=34 \
+              -Pandroid.buildToolsVersion=34.0.0 \
+              :app:test${FL_CAP}${BUILD_TYPE}
           fi
 
       - name: Upload app APKs (${{ matrix.flavor }} ${{ matrix.buildType }})

@@ -31,6 +31,9 @@ jobs:
       - name: Assemble offline debug (app+wear)
         run: |
           ./gradlew --stacktrace --no-daemon --warning-mode all \
+            -Pandroid.compileSdk=34 \
+            -Pandroid.targetSdk=34 \
+            -Pandroid.buildToolsVersion=34.0.0 \
             :app:externalNativeBuildOfflineDebug \
             :app:assembleOfflineDebug \
             :wear:assembleOfflineDebug
