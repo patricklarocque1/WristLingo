@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.nio.charset.StandardCharsets
+import com.wristlingo.app.diag.DiagnosticsBus
 
 /**
  * Wear OS/Data Layer implementation of DlClient using MessageClient.
@@ -38,6 +39,7 @@ class WearMessageClientDl(
     }
 
     override suspend fun send(topic: String, payload: String) {
+        DiagnosticsBus.logOut(topic, payload.toByteArray(StandardCharsets.UTF_8).size)
         val nodes = try {
             Tasks.await(nodeClient.connectedNodes)
         } catch (t: Throwable) {
@@ -64,6 +66,7 @@ class WearMessageClientDl(
     override fun onMessageReceived(event: MessageEvent) {
         val path = event.path.trimStart('/')
         val payload = String(event.data, StandardCharsets.UTF_8)
+        DiagnosticsBus.logIn(path, event.data?.size ?: 0)
         listener?.invoke(path, payload)
     }
 

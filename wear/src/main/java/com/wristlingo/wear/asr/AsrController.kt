@@ -8,12 +8,30 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import androidx.annotation.VisibleForTesting
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 
-class AsrController(private val activity: Activity) {
+class AsrController(
+    private val activity: Activity,
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+) : AutoCloseable {
     private var speechRecognizer: SpeechRecognizer? = null
+    private val jobs = mutableListOf<Job>()
+
+    // Helper to track launched jobs
+    private fun launchJob(
+        context: CoroutineContext = Dispatchers.Default,
+        block: suspend CoroutineScope.() -> Unit
+    ) = scope.launch(context, block = block).also { jobs += it }
 
     // Non-default overflow requires replay > 0 or extraBufferCapacity > 0 to avoid IAE.
     // Partials/transient UI updates profile
@@ -24,14 +42,13 @@ class AsrController(private val activity: Activity) {
     )
     val partial = _partial.asSharedFlow()
 
-    // Non-default overflow requires replay > 0 or extraBufferCapacity > 0 to avoid IAE.
-    // Finals/event lines profile
-    private val _finalText = MutableSharedFlow<String>(
+    // Finals flow: events semantics (replay=0) with capacity for non-default overflow
+    private val _finals = MutableSharedFlow<String>(
         replay = 0,
         extraBufferCapacity = 16,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    val finalText = _finalText.asSharedFlow()
+    val finalText = _finals.asSharedFlow()
 
     private fun ensureRecognizer(): Boolean {
         if (!SpeechRecognizer.isRecognitionAvailable(activity)) return false
@@ -56,7 +73,7 @@ class AsrController(private val activity: Activity) {
                         val list = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                         val text = list?.firstOrNull()?.trim()
                         if (!text.isNullOrEmpty()) {
-                            _finalText.tryEmit(text)
+                            _finals.tryEmit(text)
                         }
                     }
                 })
@@ -101,7 +118,7 @@ class AsrController(private val activity: Activity) {
         val list = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
         val text = list?.firstOrNull()?.trim()
         if (!text.isNullOrEmpty()) {
-            _finalText.tryEmit(text)
+            _finals.tryEmit(text)
         }
     }
 
@@ -110,13 +127,27 @@ class AsrController(private val activity: Activity) {
         speechRecognizer = null
     }
 
+    override fun close() {
+        // Cancel all tracked jobs
+        jobs.forEach { it.cancel() }
+        jobs.clear()
+        
+        // Release speech recognizer resources
+        release()
+        
+        // Cancel the scope
+        scope.cancel()
+    }
+
     // Testing helpers (no-op in production usage)
+    @VisibleForTesting
     internal fun emitPartialForTest(text: String) {
         _partial.tryEmit(text)
     }
 
+    @VisibleForTesting
     internal fun emitFinalForTest(text: String) {
-        _finalText.tryEmit(text)
+        _finals.tryEmit(text)
     }
 
     companion object {

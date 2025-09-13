@@ -4,6 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.Manifest
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
@@ -38,22 +42,42 @@ class MainActivity : ComponentActivity() {
     // UI state
     private var partialText: String? by mutableStateOf(null)
     private var captionText: String? by mutableStateOf(null)
+    private var dlError: String? by mutableStateOf(null)
+    private var lastSendPayload: String? = null
+    private var showMicRationale: Boolean by mutableStateOf(false)
+    private var permanentlyDenied: Boolean by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         asr = AsrController(this)
         dl = WearMessageClientDl(applicationContext)
 
+        if (intent?.action == "com.wristlingo.action.START_LIVE" || intent?.getBooleanExtra("start_live", false) == true) {
+            // Auto-start capture for PTT-ready state
+            startCapture()
+        }
+
         setContent {
             MaterialTheme {
                 WearApp(
                     activity = this,
-                    onPttStart = { startCapture() },
+                    onPttStart = {
+                        if (hasMicPermission()) startCapture() else {
+                            showMicRationale = true
+                            requestMicPermission()
+                        }
+                    },
                     onPttStop = { stopCapture() },
                     partialText = partialText,
                     captionText = captionText,
                     recording = (pcm?.isRecording == true),
-                    disconnected = isDisconnected
+                    disconnected = isDisconnected,
+                    showMicRationale = showMicRationale,
+                    permanentlyDenied = permanentlyDenied,
+                    onRequestMic = { requestMicPermission() },
+                    onOpenSettings = { openAppSettings() },
+                    dlError = dlError,
+                    onRetrySend = { retryLastSend() }
                 )
             }
         }
@@ -121,11 +145,17 @@ class MainActivity : ComponentActivity() {
         val streamer = PcmStreamer(dl, lifecycleScope)
         pcm = streamer
         streamer.start(16000)
+        try {
+            getSharedPreferences("wristlingo_prefs", MODE_PRIVATE).edit().putBoolean("live_active", true).apply()
+        } catch (_: Throwable) {}
     }
 
     private fun stopCapture() {
         pcm?.stop()
         pcm = null
+        try {
+            getSharedPreferences("wristlingo_prefs", MODE_PRIVATE).edit().putBoolean("live_active", false).apply()
+        } catch (_: Throwable) {}
     }
 
     private fun sendUtterance(text: String) {
@@ -135,8 +165,14 @@ class MainActivity : ComponentActivity() {
         val srcLang = try { Locale.getDefault().toLanguageTag() } catch (_: Throwable) { null }
         if (!srcLang.isNullOrEmpty()) obj.put("srcLang", srcLang)
         val json = obj.toString()
-        scope.launch(Dispatchers.IO) {
-            try { dl.send("utterance/text", json) } catch (_: Throwable) {}
+        lastSendPayload = json
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                dl.send("utterance/text", json)
+                dlError = null
+            } catch (_: Throwable) {
+                dlError = "Send failed"
+            }
         }
     }
 
@@ -148,7 +184,7 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         try { unregisterDl?.invoke() } catch (_: Throwable) {}
-        asr.release()
+        asr.close()  // Use close() instead of release() to properly cancel scope
         try { tts?.stop() } catch (_: Throwable) {}
         try { tts?.shutdown() } catch (_: Throwable) {}
         // lifecycleScope is cancelled automatically
@@ -171,6 +207,43 @@ class MainActivity : ComponentActivity() {
         try { engine.setPitch(1.0f) } catch (_: Throwable) {}
         try { engine.setSpeechRate(1.0f) } catch (_: Throwable) {}
         try { engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "wristlingo-tts-watch") } catch (_: Throwable) {}
+    }
+
+    private fun hasMicPermission(): Boolean {
+        return androidx.core.content.ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestMicPermission() {
+        androidx.core.app.ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 0x501)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 0x501) {
+            val granted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+            showMicRationale = !granted
+            permanentlyDenied = !granted && !androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    private fun openAppSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", packageName, null)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        startActivity(intent)
+    }
+
+    private fun retryLastSend() {
+        val payload = lastSendPayload ?: return
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                dl.send("utterance/text", payload)
+                dlError = null
+            } catch (_: Throwable) {
+                dlError = "Send failed"
+            }
+        }
     }
 }
 

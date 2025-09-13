@@ -18,7 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,9 +39,10 @@ fun HomeScreen(
     onOpenSession: (Long) -> Unit,
     onOpenSettings: () -> Unit,
     onStartLive: () -> Unit,
+    onOpenDiagnostics: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    val previews by repository.observeRecentSessionPreviews().collectAsState(initial = emptyList())
+    val previews by repository.observeRecentSessionPreviews().collectAsStateWithLifecycle(initialValue = emptyList())
     var query by remember { mutableStateOf("") }
     var selectedLang by remember { mutableStateOf<String?>(null) }
 
@@ -59,7 +60,12 @@ fun HomeScreen(
         Column(modifier = modifier.fillMaxSize().padding(padding).padding(16.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(text = stringResource(id = R.string.home_title), style = MaterialTheme.typography.headlineSmall)
-                TextButton(onClick = onOpenSettings) { Text(stringResource(id = R.string.title_settings)) }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (onOpenDiagnostics != null) {
+                        TextButton(onClick = onOpenDiagnostics) { Text("Diag") }
+                    }
+                    TextButton(onClick = onOpenSettings) { Text(stringResource(id = R.string.title_settings)) }
+                }
             }
             OutlinedTextField(
                 value = query,
