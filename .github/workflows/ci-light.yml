@@ -30,6 +30,22 @@ jobs:
           yes | sdkmanager --licenses
       - name: chmod gradlew
         run: chmod +x ./gradlew
+
+      - name: Initialize submodules (backup)
+        run: |
+          git submodule update --init --recursive
+          echo "Git submodule status after init:"
+          git submodule status
+
+      - name: Verify whisper.cpp submodule structure
+        run: |
+          echo "Current working directory: $(pwd)"
+          echo "Checking whisper.cpp directory structure:"
+          ls -la app/src/main/cpp/ || echo "app/src/main/cpp/ not found"
+          ls -la app/src/main/cpp/whisper.cpp/ || echo "whisper.cpp submodule not found"
+          ls -la app/src/main/cpp/whisper.cpp/CMakeLists.txt || echo "whisper.cpp/CMakeLists.txt not found"
+          echo "Git submodule status:"
+          git submodule status
       - name: Assemble offline debug (app+wear)
         run: |
           ./gradlew --stacktrace --no-daemon --warning-mode all \
