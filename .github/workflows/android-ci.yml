@@ -29,16 +29,18 @@ jobs:
           cache: gradle
 
       # Use Android 34 (stable) + NDK/CMake for native build
-      - name: Install Android SDK packages (stable + NDK/CMake)
+      - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          packages: |
-            platform-tools
-            cmdline-tools;latest
-            platforms;android-34
-            build-tools;34.0.0
-            ndk;27.0.12077973
-            cmake;3.22.1
+
+      - name: Install Android packages
+        run: |
+          sdkmanager --install \
+            "cmdline-tools;latest" \
+            "platform-tools" \
+            "platforms;android-34" \
+            "build-tools;34.0.0" \
+            "ndk;27.0.12077973" \
+            "cmake;3.22.1"
 
       - name: Accept Android SDK licenses
         run: yes | sdkmanager --licenses
