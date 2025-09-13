@@ -4,7 +4,7 @@
   - `:app`: arm64-v8a only. NDK/JNI configured here if needed.
   - `:wear`: no NDK/JNI; ABI splits disabled (works on arm64-only devices).
 
-- Centralized versions respected via `gradle.properties`: compileSdk/targetSdk=36; buildTools=36.0.0; minSdk wear=30, app=26; ndkVersion=27.x used only by `:app`.
+- Centralized versions respected via `gradle.properties`: compileSdk/targetSdk=36; buildTools=36.0.0; minSdk wear=30, app=26; ndkVersion pinned via property and read by `:app`.
 
 ## Changes
 
@@ -38,4 +38,7 @@
   - `./gradlew clean :wear:assembleOfflineDebug`
 - Full build (defaults to offline flavor):
   - `./gradlew clean :app:externalNativeBuildOfflineDebug :app:assembleOfflineDebug :wear:assembleOfflineDebug`
+
+### Helper verification
+- `./gradlew :app:verify16k` checks ELF `p_align == 0x4000` for JNI libs and verifies `zipalign -P 16` on the APK.
 
