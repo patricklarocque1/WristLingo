@@ -1,5 +1,6 @@
 package com.wristlingo.wear.tiles
 
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.wear.protolayout.ActionBuilders

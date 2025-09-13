@@ -93,6 +93,11 @@ dependencies {
     implementation(libs.play.services.wearable)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    
+    // Wear Tiles and ProtoLayout dependencies
+    implementation("androidx.wear.protolayout:protolayout:1.2.0")
+    implementation("androidx.wear.tiles:tiles:1.2.0")
+    
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
