@@ -12,7 +12,22 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.wristlingo.action.START_LIVE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
+        <service
+            android:name="com.wristlingo.wear.tiles.TranslateTileService"
+            android:label="Translate"
+            android:exported="true"
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+            <meta-data android:name="androidx.wear.tiles.PREVIEW"
+                android:resource="@android:drawable/ic_btn_speak_now" />
+        </service>
     </application>
 </manifest>
 

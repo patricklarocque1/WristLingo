@@ -4,6 +4,7 @@ import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -17,6 +18,12 @@ class WhisperModelManager(private val context: Context) {
 
     fun getModelPath(): String? = if (hasModel()) modelFile.absolutePath else null
 
+    fun getModelSizeBytes(): Long = if (hasModel()) modelFile.length() else 0L
+
+    fun removeModel(): Boolean {
+        return try { if (modelFile.exists()) modelFile.delete() else true } catch (_: Throwable) { false }
+    }
+
     suspend fun downloadModel(
         url: String,
         sha256Hex: String,
@@ -27,23 +34,55 @@ class WhisperModelManager(private val context: Context) {
         if (!modelsDir.exists()) modelsDir.mkdirs()
 
         val tmp = File(modelsDir, "download.tmp")
-        if (tmp.exists()) tmp.delete()
+        var existing = if (tmp.exists()) tmp.length() else 0L
 
         val connection = (URL(url).openConnection() as HttpURLConnection).apply {
             connectTimeout = 30_000
             readTimeout = 60_000
             instanceFollowRedirects = true
+            if (existing > 0L) setRequestProperty("Range", "bytes=${existing}-")
         }
         connection.connect()
+        val isPartial = connection.responseCode == 206
         if (connection.responseCode !in 200..299) {
             connection.disconnect()
             throw IllegalStateException("HTTP ${connection.responseCode}")
         }
-        val total = connection.contentLengthLong.takeIf { it > 0 } ?: -1L
+
+        if (existing > 0L && !isPartial) {
+            // server ignored Range
+            tmp.delete()
+            existing = 0L
+        }
+
+        val total = if (isPartial) {
+            val cr = connection.getHeaderField("Content-Range")
+            val totalStr = cr?.substringAfter('/')
+            totalStr?.toLongOrNull() ?: -1L
+        } else connection.contentLengthLong.takeIf { it > 0 } ?: -1L
+
+        // Low storage guard (allow 10MB headroom)
+        if (total > 0 && modelsDir.usableSpace < (total - existing + (10L shl 20))) {
+            connection.disconnect()
+            throw IllegalStateException("LOW_STORAGE")
+        }
+
         val digest = MessageDigest.getInstance("SHA-256")
-        var downloaded = 0L
+        // If resuming, include existing bytes in digest
+        if (existing > 0L) {
+            FileInputStream(tmp).use { input ->
+                val buf = ByteArray(1 shl 16)
+                while (true) {
+                    val read = input.read(buf)
+                    if (read == -1) break
+                    digest.update(buf, 0, read)
+                }
+            }
+        }
+
+        var downloaded = existing
         connection.inputStream.use { input ->
-            FileOutputStream(tmp).use { out ->
+            FileOutputStream(tmp, /*append=*/existing > 0L).use { out ->
                 val buffer = ByteArray(1 shl 16)
                 while (true) {
                     val read = input.read(buffer)

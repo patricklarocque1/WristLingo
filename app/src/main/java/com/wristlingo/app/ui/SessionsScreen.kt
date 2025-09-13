@@ -1,6 +1,8 @@
 package com.wristlingo.app.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +18,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -32,11 +34,20 @@ fun SessionsScreen(
     repository: SessionRepository,
     modifier: Modifier = Modifier,
     onOpenSession: (Long) -> Unit,
-    onOpenSettings: () -> Unit
+    onOpenSettings: () -> Unit,
+    onOpenDiagnostics: () -> Unit = {}
 ) {
-    val sessions by repository.observeRecentSessionPreviews().collectAsState(initial = emptyList())
+    val sessions by repository.observeRecentSessionPreviews().collectAsStateWithLifecycle(initialValue = emptyList())
     Column(modifier = modifier.padding(16.dp)) {
-        Row(modifier = Modifier.fillMaxWidth()) {
+        var taps = 0
+        Row(modifier = Modifier.fillMaxWidth().pointerInput(Unit) {
+            detectTapGestures(
+                onLongPress = {
+                    taps++
+                    if (taps >= 5) { onOpenDiagnostics() ; taps = 0 }
+                }
+            )
+        }) {
             Text(
                 text = "Sessions",
                 style = MaterialTheme.typography.headlineSmall,

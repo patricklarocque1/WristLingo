@@ -25,6 +25,7 @@
 
     <string name="session_title">Session #%1$d</string>
     <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
     <string name="star">Star</string>
     <string name="end">End</string>
 

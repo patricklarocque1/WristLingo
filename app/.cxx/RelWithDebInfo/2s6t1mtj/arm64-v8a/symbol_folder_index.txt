@@ -1,1 +1,0 @@
-C:\Users\boypa\Documents\GitHub\WristLingo\app\build\intermediates\cxx\RelWithDebInfo\2s6t1mtj\obj\arm64-v8a

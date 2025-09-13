@@ -1,0 +1,67 @@
+name: Android CI (light)
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-debug-offline:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+      - uses: android-actions/setup-android@v3
+      - name: Install minimal SDK packages (API 34)
+        run: |
+          sdkmanager --install \
+            "cmdline-tools;latest" \
+            "platform-tools" \
+            "platforms;android-34" \
+            "build-tools;34.0.0" \
+            "ndk;29.0.14033849" \
+            "cmake;3.22.1"
+          yes | sdkmanager --licenses
+      - name: chmod gradlew
+        run: chmod +x ./gradlew
+
+      - name: Initialize submodules (backup)
+        run: |
+          git submodule update --init --recursive
+          echo "Git submodule status after init:"
+          git submodule status
+
+      - name: Verify whisper.cpp submodule structure
+        run: |
+          echo "Current working directory: $(pwd)"
+          echo "Checking whisper.cpp directory structure:"
+          ls -la app/src/main/cpp/ || echo "app/src/main/cpp/ not found"
+          ls -la app/src/main/cpp/whisper.cpp/ || echo "whisper.cpp submodule not found"
+          ls -la app/src/main/cpp/whisper.cpp/CMakeLists.txt || echo "whisper.cpp/CMakeLists.txt not found"
+          echo "Git submodule status:"
+          git submodule status
+      - name: Assemble offline debug (app+wear)
+        run: |
+          ./gradlew --stacktrace --no-daemon --warning-mode all \
+            -Pandroid.compileSdk=34 \
+            -Pandroid.targetSdk=34 \
+            -Pandroid.buildToolsVersion=34.0.0 \
+            :app:externalNativeBuildOfflineDebug \
+            :app:assembleOfflineDebug \
+            :wear:assembleOfflineDebug
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: offline-debug-apks
+          path: |
+            app/build/outputs/**/*.apk
+            wear/build/outputs/**/*.apk
+          if-no-files-found: warn
+
+

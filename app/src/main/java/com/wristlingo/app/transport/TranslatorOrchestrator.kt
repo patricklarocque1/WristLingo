@@ -15,6 +15,10 @@ import com.wristlingo.app.asr.WhisperAsrController
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import com.wristlingo.app.audio.VadUtils
+import com.wristlingo.app.diag.DiagnosticsBus
+import com.wristlingo.app.ui.LiveCaptionBus
+import android.widget.Toast
 
 class TranslatorOrchestrator(
     private val context: Context,
@@ -112,11 +116,15 @@ class TranslatorOrchestrator(
                 val mgr = com.wristlingo.app.asr.WhisperModelManager(context)
                 whisper = WhisperAsrController { mgr.getModelPath() }
                 if (!whisper!!.start(sr)) {
+                    try {
+                        Toast.makeText(context, "Whisper model missing. Open Settings > Manage Whisper model.", Toast.LENGTH_SHORT).show()
+                    } catch (_: Throwable) {}
                     whisper = null
                     return
                 }
                 whisperSr = sr
                 pcmSeqExpected = 0L
+                DiagnosticsBus.setAsrActive(true)
             }
 
             // simple sequence guard
@@ -147,13 +155,14 @@ class TranslatorOrchestrator(
 
             // Simple energy-based VAD over this frame
             val frameSamples = max(1, samples.size)
-            val rms = kotlin.math.sqrt(energySum / frameSamples)
+            val rms = VadUtils.computeRms(samples)
+            DiagnosticsBus.setVadRms(rms)
             val now = System.currentTimeMillis()
             val threshold = settings.vadRmsThreshold.toDouble()
             if (settings.logRms) {
                 android.util.Log.d("WhisperVAD", "rms=${'$'}rms threshold=${'$'}threshold")
             }
-            if (rms > threshold) {
+            if (VadUtils.isSpeech(rms, threshold)) {
                 lastVoiceMs = now
             }
             // Throttle partial captions using configured window
@@ -167,6 +176,7 @@ class TranslatorOrchestrator(
                         .put("seq", seq)
                         .put("text", part)
                     dlSend("caption/update", out.toString())
+                    LiveCaptionBus.emitPartial(part)
                 }
             }
 
@@ -178,15 +188,17 @@ class TranslatorOrchestrator(
                             JSONObject().put("seq", seq).put("text", text).toString()
                         )
                     }
+                    LiveCaptionBus.emitFinal(text)
                 }
                 whisper?.close()
                 whisper = null
                 energyAvg = 0.0
                 queuedFramesBytes = 0
+                DiagnosticsBus.setAsrActive(false)
             } else {
-                // Auto-finalize if silent for 800ms after voice
+                // Auto-finalize after configured silence duration
                 val silenceMs = max(200, settings.vadSilenceMs)
-                if (lastVoiceMs > 0L && now - lastVoiceMs >= silenceMs) {
+                if (VadUtils.shouldFinalize(lastVoiceMs, now, silenceMs)) {
                     val text = whisper?.finalizeStream().orEmpty()
                     if (text.isNotEmpty()) {
                         scope.launch(Dispatchers.IO) {
@@ -194,11 +206,13 @@ class TranslatorOrchestrator(
                                 JSONObject().put("seq", seq).put("text", text).toString()
                             )
                         }
+                        LiveCaptionBus.emitFinal(text)
                     }
                     whisper?.close()
                     whisper = null
                     energyAvg = 0.0
                     queuedFramesBytes = 0
+                    DiagnosticsBus.setAsrActive(false)
                 }
             }
         } catch (_: Throwable) { }

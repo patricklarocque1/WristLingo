@@ -13,6 +13,7 @@ import com.wristlingo.app.ui.HomeScreen
 import com.wristlingo.app.ui.LiveOverlayScreen
 import com.wristlingo.app.ui.SessionDetailScreen
 import com.wristlingo.app.ui.SettingsScreen
+import com.wristlingo.app.ui.DiagnosticsScreen
 import com.wristlingo.app.ui.theme.WristLingoTheme
 import com.wristlingo.app.data.AppDatabase
 import com.wristlingo.app.data.SessionRepository
@@ -25,6 +26,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import com.wristlingo.app.ui.LanguagePickerScreen
+import androidx.lifecycle.lifecycleScope
 
 class MainActivity : ComponentActivity() {
     private lateinit var orchestrator: TranslatorOrchestrator
@@ -49,23 +52,31 @@ class MainActivity : ComponentActivity() {
             WristLingoTheme {
                 var route by remember { mutableStateOf<Screen>(Screen.Home) }
                 when (val r = route) {
-                    is Screen.Home -> HomeScreen(
+                    is Screen.Home -> SessionsScreen(
                         repository = repo,
                         onOpenSession = { id -> route = Screen.SessionDetail(id) },
                         onOpenSettings = { route = Screen.Settings },
-                        onStartLive = { route = Screen.Live }
+                        onOpenDiagnostics = { route = Screen.Diagnostics }
                     )
                     is Screen.SessionDetail -> SessionDetailScreen(
                         repository = repo,
                         sessionId = r.id,
                         onBack = { route = Screen.Home }
                     )
+                    is Screen.Diagnostics -> DiagnosticsScreen(onBack = { route = Screen.Home }, repository = repo)
                     is Screen.Settings -> SettingsScreen(
                         settings = settings,
                         translationProvider = translator,
                         isOfflineFlavor = !BuildConfig.USE_CLOUD_TRANSLATE,
                         scope = scope,
-                        onBack = { route = Screen.Home }
+                        onBack = { route = Screen.Home },
+                        onOpenLanguagePicker = { current -> route = Screen.LanguagePicker(current) },
+                        onLanguagePicked = { code -> settings.defaultTargetLanguage = code; route = Screen.Settings }
+                    )
+                    is Screen.LanguagePicker -> LanguagePickerScreen(
+                        selectedCode = r.current,
+                        onSelect = { code -> settings.defaultTargetLanguage = code; route = Screen.Settings },
+                        onBack = { route = Screen.Settings }
                     )
                     is Screen.Live -> LiveOverlayScreen(
                         currentText = "",
@@ -76,6 +87,27 @@ class MainActivity : ComponentActivity() {
                         onStar = { },
                         onEnd = { route = Screen.Home }
                     )
+                }
+            }
+        }
+        if (intent?.action == "com.wristlingo.action.START_LIVE_OVERLAY" || intent?.getBooleanExtra("start", false) == true) {
+            // Navigate directly into Live overlay from QS tile
+            // Uses same composable route state; trigger via a post to avoid setContent race
+            lifecycleScope.launch(Dispatchers.Main) {
+                // Quick: rebuild content state by restarting setContent block variable via a no-op change
+                setContent {
+                    WristLingoTheme {
+                        var route by remember { mutableStateOf<Screen>(Screen.Live) }
+                        LiveOverlayScreen(
+                            currentText = "",
+                            languages = listOf("en","fr","es","de"),
+                            selectedLang = settings.defaultTargetLanguage,
+                            onLangChange = { settings.defaultTargetLanguage = it },
+                            onPause = { },
+                            onStar = { },
+                            onEnd = { route = Screen.Home }
+                        )
+                    }
                 }
             }
         }
@@ -92,6 +124,8 @@ private sealed interface Screen {
     data object Home : Screen
     data class SessionDetail(val id: Long) : Screen
     data object Settings : Screen
+    data class LanguagePicker(val current: String) : Screen
     data object Live : Screen
+    data object Diagnostics : Screen
 }
 

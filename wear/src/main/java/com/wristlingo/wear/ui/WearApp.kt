@@ -1,6 +1,7 @@
 package com.wristlingo.wear.ui
 
 import android.app.Activity
+import android.os.PowerManager
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,15 @@ import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.Text
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.wristlingo.wear.ui.components.RingMicButton
+import com.wristlingo.wear.ui.components.CaptionTicker
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun WearApp(
@@ -30,8 +40,27 @@ fun WearApp(
     partialText: String?,
     captionText: String?,
     recording: Boolean,
-    disconnected: Boolean
+    disconnected: Boolean,
+    showMicRationale: Boolean = false,
+    permanentlyDenied: Boolean = false,
+    onRequestMic: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
+    dlError: String? = null,
+    onRetrySend: () -> Unit = {}
 ) {
+    val ctx = LocalContext.current
+    val pm = remember { ctx.getSystemService(PowerManager::class.java) }
+    // Approximate ambient by power-save/idle to avoid extra dependencies
+    val isAmbient = (pm?.isPowerSaveMode == true) || (android.os.Build.VERSION.SDK_INT >= 23 && pm?.isDeviceIdleMode == true)
+    var showReconnectToast by remember { mutableStateOf(false) }
+    LaunchedEffect(disconnected) {
+        if (!disconnected) {
+            showReconnectToast = true
+            kotlinx.coroutines.delay(1000)
+            showReconnectToast = false
+        }
+    }
+
     Scaffold {
         Box(modifier = Modifier.fillMaxSize().padding(8.dp)) {
             Column(
@@ -43,11 +72,21 @@ fun WearApp(
                     if (disconnected) {
                         Chip(
                             onClick = {},
-                            label = { Text("Disconnected") },
+                            label = { Text("Phone not reachable") },
                             colors = ChipDefaults.chipColors()
                         )
                     }
-                    Text(text = captionText ?: "")
+                    if (dlError != null) {
+                        Chip(onClick = onRetrySend, label = { Text("Retry send") }, colors = ChipDefaults.chipColors())
+                    }
+                    CaptionTicker(text = captionText ?: "", ambient = isAmbient)
+                    if (showReconnectToast) {
+                        Chip(
+                            onClick = {},
+                            label = { Text("Reconnected") },
+                            colors = ChipDefaults.chipColors(backgroundColor = Color(0xFF2E7D32))
+                        )
+                    }
                 }
 
                 // Center: ring PTT and partial below
@@ -56,10 +95,13 @@ fun WearApp(
                     modifier = Modifier.fillMaxSize().weight(1f),
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Button(
-                        onClick = {},
+                    if (showMicRationale) {
+                        Chip(onClick = onRequestMic, label = { Text(if (permanentlyDenied) "Open Settings" else "Try again") }, colors = ChipDefaults.chipColors())
+                    }
+                    RingMicButton(
+                        recording = recording,
+                        ambient = isAmbient,
                         modifier = Modifier
-                            .size(72.dp)
                             .pointerInput(Unit) {
                                 detectTapGestures(
                                     onPress = {
@@ -68,13 +110,10 @@ fun WearApp(
                                         onPttStop()
                                     }
                                 )
-                            },
-                        shape = CircleShape
-                    ) {
-                        Text(if (recording) "REC" else "PTT")
-                    }
+                            }
+                    )
                     Spacer(modifier = Modifier.size(8.dp))
-                    Text(text = partialText ?: "")
+                    CaptionTicker(text = partialText ?: "", ambient = isAmbient)
                 }
             }
         }

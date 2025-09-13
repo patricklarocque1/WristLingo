@@ -1,0 +1,10 @@
+/home/boypa/projects/WristLingo/app/src/main/cpp/CMakeLists.txt
+/home/boypa/projects/WristLingo/app/src/main/cpp/whisper.cpp/CMakeLists.txt
+/home/boypa/projects/WristLingo/app/src/main/cpp/whisper.cpp/cmake/build-info.cmake
+/home/boypa/projects/WristLingo/app/src/main/cpp/whisper.cpp/cmake/whisper-config.cmake.in
+/home/boypa/projects/WristLingo/app/src/main/cpp/whisper.cpp/ggml/CMakeLists.txt
+/home/boypa/projects/WristLingo/app/src/main/cpp/whisper.cpp/ggml/cmake/common.cmake
+/home/boypa/projects/WristLingo/app/src/main/cpp/whisper.cpp/ggml/cmake/ggml-config.cmake.in
+/home/boypa/projects/WristLingo/app/src/main/cpp/whisper.cpp/ggml/src/CMakeLists.txt
+/home/boypa/projects/WristLingo/app/src/main/cpp/whisper.cpp/ggml/src/ggml-cpu/CMakeLists.txt
+/home/boypa/projects/WristLingo/app/src/main/cpp/whisper.cpp/src/CMakeLists.txt

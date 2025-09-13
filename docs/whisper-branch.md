@@ -50,7 +50,7 @@ Notes:
 - Place models outside the repo or download at runtime to app storage. Configure your absolute path when calling the JNI bridge.
 - The build integrates the submodule via CMake (`add_subdirectory(whisper.cpp)`), producing `libwhisper` which is linked into `libwhisper_bridge.so`.
 
-## JNI bridge usage (preview)
+## JNI bridge usage
 
 Wrapper class: `com.wristlingo.app.nativebridge.NativeWhisper`
 
@@ -71,5 +71,16 @@ On phone, models are managed at `filesDir/models/whisper/` by `WhisperModelManag
 - `downloadModel(url, sha256)` — downloads to a temp file, verifies SHA‑256, then atomically moves into place
 - `getModelPath()` — returns absolute path or null
 
-Enable “Use Whisper on phone (watch sends audio)” and set the model path or use the manager to download one.
+Enable “Use Whisper on phone (watch sends audio)” and set the model path or use the manager to download one. Model downloads can resume; SHA‑256 is verified before replacing the model atomically.
+
+## End‑to‑end audio path (Wear → Phone)
+1. Wear streams PCM frames (~200–300 ms) with JSON header `{sr,bits,seq,end}` and Base64 payload via `DlClient` topic `audio/pcm`.
+2. Phone decodes frames, feeds `WhisperAsrController`, and applies energy‑based VAD:
+   - Partial captions throttled every ~500 ms over a sliding window
+   - Silence timeout auto‑finalizes
+3. Final and partial captions are sent back to Wear via `caption/update` and used to drive the phone Live overlay.
+
+## Build flavors
+- `offline` builds include JNI and ML Kit; cloud toggles disabled by default.
+- Native builds are scoped to `:app` only with `arm64-v8a`.
 
