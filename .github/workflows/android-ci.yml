@@ -48,7 +48,7 @@ jobs:
             "build-tools;34.0.0" \
             "ndk;29.0.14033849" \
             "cmake;3.22.1"
-          yes | sdkmanager --licenses
+          yes | sdkmanager --licenses || true
           sdkmanager --list | sed -n '1,160p' || true
 
       - name: Make Gradle wrapper executable
