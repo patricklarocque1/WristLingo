@@ -11,7 +11,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
+import androidx.wear.compose.material.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,8 +27,8 @@ fun RingMicButton(
     ambient: Boolean,
     modifier: Modifier = Modifier,
     label: String = if (recording) "REC" else "PTT",
-    innerColor: Color = if (recording) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-    ringColor: Color = if (recording) MaterialTheme.colorScheme.primary.copy(alpha = 0.6f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+    innerColor: Color = if (recording) MaterialTheme.colors.primary else MaterialTheme.colors.surface,
+    ringColor: Color = if (recording) MaterialTheme.colors.primary.copy(alpha = 0.6f) else MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
     content: (@Composable () -> Unit)? = null
 ) {
     val pulse by rememberInfiniteTransition(label = "ring").animateFloat(
@@ -51,7 +51,7 @@ fun RingMicButton(
             .background(color = innerColor, shape = CircleShape)
             .border(width = 4.dp, color = ringColor, shape = CircleShape)
     ) {
-        if (content != null) content() else Text(label, color = MaterialTheme.colorScheme.onPrimary)
+        if (content != null) content() else Text(label, color = MaterialTheme.colors.onPrimary)
     }
 }
 
