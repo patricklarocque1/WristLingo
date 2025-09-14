@@ -118,14 +118,18 @@ tasks.register("checkAbi") {
     description = "Prints enabled ABI splits and warns if anything other than none is present."
     doLast {
         println("=== :wear:checkAbi ===")
-        val androidExt = extensions.findByName("android") as? com.android.build.gradle.internal.dsl.BaseAppModuleExtension
-        val enabled = androidExt?.splits?.abi?.isEnable ?: false
-        if (!enabled) {
-            println("ABI splits: none (disabled)")
-        } else {
+        // Check build.gradle.kts content for ABI splits configuration
+        val buildFile = file("build.gradle.kts")
+        val buildContent = buildFile.readText()
+        
+        if (buildContent.contains("isEnable = true")) {
             println("ABI splits enabled")
             println("Warning: Wear module should not enable ABI splits (app handles ABI)")
+        } else {
+            println("ABI splits: none (disabled)")
         }
+        
+        println("Note: Manual check - verify splits.abi.isEnable setting in build file")
     }
 }
 
