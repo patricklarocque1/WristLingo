@@ -95,8 +95,11 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     
     // Wear Tiles and ProtoLayout dependencies
-    implementation("androidx.wear.protolayout:protolayout:1.2.0")
-    implementation("androidx.wear.tiles:tiles:1.2.0")
+    implementation("androidx.wear.tiles:tiles:1.1.0")
+    implementation("androidx.wear.protolayout:protolayout:1.1.0")
+    
+    // Material3 for Text component
+    implementation("androidx.compose.material3:material3:1.2.0")
     
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
