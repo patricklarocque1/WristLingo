@@ -74,6 +74,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
+        isCoreLibraryDesugaringEnabled = true
     }
 }
 
@@ -82,6 +83,7 @@ kotlin {
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(platform(libs.compose.bom))
     implementation(libs.wear.compose.material)
     implementation(libs.androidx.compose.foundation)
@@ -91,6 +93,15 @@ dependencies {
     implementation(libs.play.services.wearable)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    
+    // Wear Tiles and ProtoLayout dependencies
+    implementation("androidx.wear.tiles:tiles:1.1.0")
+    implementation("androidx.wear.protolayout:protolayout:1.1.0")
+    implementation("androidx.wear.protolayout:protolayout-material:1.1.0")
+    
+    // Material3 for Text component
+    implementation("androidx.compose.material3:material3:1.2.0")
+    
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
@@ -98,4 +109,20 @@ dependencies {
 
 // Local verify: gradlew clean :wear:assembleOfflineDebug
 // Install to arm64 Wear emulator/device
+
+tasks.register("checkAbi") {
+    group = "help"
+    description = "Prints enabled ABI splits and warns if anything other than none is present."
+    doLast {
+        println("=== :wear:checkAbi ===")
+        val androidExt = extensions.findByName("android") as? com.android.build.gradle.internal.dsl.BaseAppModuleExtension
+        val enabled = androidExt?.splits?.abi?.isEnable ?: false
+        if (!enabled) {
+            println("ABI splits: none (disabled)")
+        } else {
+            println("ABI splits enabled")
+            println("Warning: Wear module should not enable ABI splits (app handles ABI)")
+        }
+    }
+}
 

@@ -19,7 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +27,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.wristlingo.app.data.SessionRepository
 import com.wristlingo.app.data.UtteranceEntity
+import com.wristlingo.app.data.JsonlExportImport
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import androidx.core.content.FileProvider
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -41,7 +49,8 @@ fun SessionDetailScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit
 ) {
-    val utterances by repository.observeUtterances(sessionId).collectAsState(initial = emptyList())
+    val context = LocalContext.current
+    val utterances by repository.observeUtterances(sessionId).collectAsStateWithLifecycle(initialValue = emptyList())
     Column(modifier = modifier.padding(16.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
@@ -49,7 +58,22 @@ fun SessionDetailScreen(
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
-            Button(onClick = onBack) { Text("Back") }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                IconButton(onClick = {
+                    // Export current session to cache and share
+                    val meta = JsonlExportImport.SessionMeta(startedAtEpochMs = utterances.firstOrNull()?.timestampEpochMs ?: System.currentTimeMillis(), targetLang = utterances.firstOrNull()?.dstLang ?: "")
+                    val lines = JsonlExportImport.toJsonlLines(meta, utterances)
+                    val file = JsonlExportImport.writeJsonlToCache(context, "session-${sessionId}.jsonl", lines)
+                    val uri = JsonlExportImport.contentUriFor(context, file)
+                    val share = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    context.startActivity(Intent.createChooser(share, "Share session"))
+                }) { Icon(Icons.Default.Share, contentDescription = "Share session") }
+                Button(onClick = onBack) { Text("Back") }
+            }
         }
         Spacer(modifier = Modifier.height(12.dp))
         val grouped = utterances.groupBy { toLocalDate(it.timestampEpochMs) }

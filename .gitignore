@@ -1,6 +1,6 @@
+# Gradle files
 .gradle/
 **/build/
-.idea/
 local.properties
 java_pid*.hprof
 
@@ -12,5 +12,55 @@ gradle/native/
 gradle/kotlin-profile/
 gradle/transforms-4/
 gradle/wrapper/dists/
+
+# IDE files
+.idea/
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/*.code-snippets
+
+# Eclipse IDE files
+.classpath
+.project
+.settings/
+bin/
+
+# Android NDK build artifacts
+**/.cxx/
+**/obj/
+**/libs/
+**/.externalNativeBuild/
+
+# Android specific
+*.iml
+*.hprof
+*.ap_
+*.aab
+*.apk
+/captures/
+.navigation/
+/gen/
+/out/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Development tools
+actions-runner/
+.cursorignore
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
 
 

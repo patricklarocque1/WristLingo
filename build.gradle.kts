@@ -1,5 +1,7 @@
-tasks.register("clean", Delete::class) {
-    delete(rootProject.layout.buildDirectory)
+tasks.register("clean") {
+    doLast {
+        delete(rootProject.layout.buildDirectory)
+    }
 }
 
 plugins {
@@ -9,5 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.kapt) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.ksp) apply false
 }
 

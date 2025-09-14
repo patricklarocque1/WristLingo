@@ -1,4 +1,38 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
-    "git.ignoreLimitWarning": true
+    "java.import.gradle.enabled": true,
+    "java.import.gradle.wrapper.enabled": true,
+    "java.import.gradle.offline.enabled": false,
+    "java.import.gradle.arguments": "--no-daemon",
+    "java.import.gradle.jvmArguments": "-Xmx2G",
+    "kotlin.languageServer.enabled": true,
+    "kotlin.linting.enabled": true,
+    "kotlin.completion.snippets.enabled": true,
+    "files.associations": {
+        "*.kt": "kotlin",
+        "*.kts": "kotlin",
+        "*.gradle": "gradle",
+        "*.gradle.kts": "gradle"
+    },
+    "files.exclude": {
+        "**/build/": true,
+        "**/bin/": true,
+        "**/.gradle": true,
+        "**/gradle/wrapper/gradle-wrapper.jar": true,
+        "**/*.hprof": true,
+        "**/local.properties": true
+    },
+    "search.exclude": {
+        "**/build/": true,
+        "**/bin/": true,
+        "**/.gradle": true
+    },
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+    "gradle.nestedProjects": true,
+    "cSpell.words": [
+        "kapt"
+    ]
 }
