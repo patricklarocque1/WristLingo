@@ -1,33 +1,33 @@
 {
-  "cursor.general.enableIndexing": true,
-  "cursor.general.enableCodebaseIndexing": true,
-  "cursor.general.enableGitIntegration": true,
-  "cursor.general.gitIntegration": {
-    "enabled": true,
-    "autoFetch": true,
-    "showBranchInStatusBar": true
-  },
-  "git.enabled": true,
-  "git.path": "/usr/bin/git",
-  "git.autoRepositoryDetection": true,
-  "git.detectSubmodules": true,
-  "scm.defaultViewMode": "tree",
-  "scm.repositories.visible": 10,
-  "files.watcherExclude": {
-    "**/build/**": true,
-    "**/.gradle/**": true,
-    "**/.kotlin/**": true,
-    "**/bin/**": true,
-    "**/*.hprof": true,
-    "**/local.properties": true,
-    "**/gradle/wrapper/gradle-wrapper.jar": true
-  },
-  "search.exclude": {
-    "**/build/": true,
-    "**/.gradle/": true,
-    "**/.kotlin/": true,
-    "**/bin/": true,
-    "**/*.hprof": true,
-    "**/gradle/wrapper/gradle-wrapper.jar": true
-  }
+    "cursor.general.enableIndexing": true,
+    "cursor.general.enableCodebaseIndexing": true,
+    "cursor.general.enableGitIntegration": true,
+    "cursor.general.gitIntegration": {
+        "enabled": true,
+        "autoFetch": true,
+        "showBranchInStatusBar": true
+    },
+    "git.enabled": true,
+    "git.path": "/usr/bin/git",
+    "git.autoRepositoryDetection": true,
+    "git.detectSubmodules": true,
+    "scm.defaultViewMode": "tree",
+    "scm.repositories.visible": 10,
+    "files.watcherExclude": {
+        "**/build/**": true,
+        "**/.gradle/**": true,
+        "**/.kotlin/**": true,
+        "**/bin/**": true,
+        "**/*.hprof": true,
+        "**/local.properties": true,
+        "**/gradle/wrapper/gradle-wrapper.jar": true
+    },
+    "search.exclude": {
+        "**/build/": true,
+        "**/.gradle/": true,
+        "**/.kotlin/": true,
+        "**/bin/": true,
+        "**/*.hprof": true,
+        "**/gradle/wrapper/gradle-wrapper.jar": true
+    }
 }
