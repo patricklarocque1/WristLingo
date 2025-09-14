@@ -1,5 +1,7 @@
-tasks.register("clean", Delete::class) {
-    delete(rootProject.layout.buildDirectory)
+tasks.register("clean") {
+    doLast {
+        delete(rootProject.layout.buildDirectory)
+    }
 }
 
 plugins {

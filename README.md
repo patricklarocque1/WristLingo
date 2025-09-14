@@ -37,6 +37,16 @@ Hands‑free, on‑the‑go translation. The Wear OS app captures nearby speech 
 - **Settings**: `Settings` contract persisted via SharedPreferences on device
 - **TTS**: `TtsHelper` contract with phone/watch routing (speak on watch when connected)
 
+## IDE Setup
+
+For detailed setup instructions across different IDEs (VS Code, IntelliJ IDEA, Android Studio, Eclipse), see **[WORKSPACE_SETUP.md](./WORKSPACE_SETUP.md)**.
+
+The project includes pre-configured workspace files for:
+
+- **VS Code**: `WristLingo.code-workspace` with build tasks and debugging
+- **IntelliJ IDEA/Android Studio**: `.idea/` configuration files  
+- **Eclipse**: `.project` and `.classpath` files
+
 ## Quickstart
 
 ```bash
@@ -47,13 +57,13 @@ Hands‑free, on‑the‑go translation. The Wear OS app captures nearby speech 
 
 ## Local build notes (API 36)
 
-
 Android Gradle Plugin targets API 36 here. Ensure you have the following installed via Android SDK Manager:
 
 - Android SDK Platform 36
 - Android SDK Build-Tools 36.0.0
 
 In Android Studio:
+
 - Open Settings/Preferences → Appearance & Behavior → System Settings → Android SDK
 - SDK Platforms tab → check “Android 14 (UpsideDownCake) Extension Level 7 / 36” (or latest 36)
 - SDK Tools tab → check “Android SDK Build-Tools 36.0.0”

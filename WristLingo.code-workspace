@@ -1,0 +1,255 @@
+{
+    "folders": [
+        {
+            "name": "WristLingo Root",
+            "path": "."
+        },
+        {
+            "name": "App Module",
+            "path": "./app"
+        },
+        {
+            "name": "Wear Module",
+            "path": "./wear"
+        },
+        {
+            "name": "Core Module",
+            "path": "./core"
+        }
+    ],
+    "settings": {
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.import.gradle.enabled": true,
+        "java.import.gradle.wrapper.enabled": true,
+        "java.import.gradle.home": "",
+        "java.import.gradle.java.home": "",
+        "java.import.gradle.offline.enabled": false,
+        "java.import.gradle.arguments": "--no-daemon",
+        "java.import.gradle.jvmArguments": "-Xmx2G",
+        "java.compile.nullAnalysis.mode": "automatic",
+        "java.configuration.runtimes": [],
+        "kotlin.compiler.jvm.target": "1.8",
+        "kotlin.languageServer.enabled": true,
+        "kotlin.languageServer.path": "",
+        "kotlin.debugAdapter.enabled": true,
+        "kotlin.debugAdapter.path": "",
+        "kotlin.linting.enabled": true,
+        "kotlin.completion.snippets.enabled": true,
+        "files.associations": {
+            "*.kt": "kotlin",
+            "*.kts": "kotlin",
+            "*.gradle": "gradle",
+            "*.gradle.kts": "gradle",
+            "*.pro": "properties"
+        },
+        "files.exclude": {
+            "**/build/": true,
+            "**/bin/": true,
+            "**/.gradle": true,
+            "**/gradle/wrapper/gradle-wrapper.jar": true,
+            "**/*.hprof": true,
+            "**/local.properties": true,
+            "**/.DS_Store": true,
+            "**/Thumbs.db": true
+        },
+        "search.exclude": {
+            "**/build/": true,
+            "**/bin/": true,
+            "**/.gradle": true,
+            "**/gradle/wrapper/gradle-wrapper.jar": true,
+            "**/*.hprof": true
+        },
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        },
+        "terminal.integrated.cwd": "${workspaceFolder}",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "git.ignoreLimitWarning": true,
+        "gradle.nestedProjects": true
+    },
+    "extensions": {
+        "recommendations": [
+            "mathiasfrohlich.kotlin",
+            "vscjava.vscode-java-pack",
+            "vscjava.vscode-gradle",
+            "richardwillis.vscode-gradle",
+            "redhat.vscode-yaml",
+            "ms-vscode.vscode-json",
+            "streetsidesoftware.code-spell-checker",
+            "ms-vscode.vscode-typescript-next",
+            "bradlc.vscode-tailwindcss",
+            "esbenp.prettier-vscode",
+            "ms-vscode.Theme-MarkdownKit",
+            "yzhang.markdown-all-in-one",
+            "shd101wyy.markdown-preview-enhanced",
+            "ms-vscode.hexeditor"
+        ]
+    },
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Build All Debug",
+                "type": "shell",
+                "command": "./gradlew",
+                "args": [
+                    "assembleOfflineDebug"
+                ],
+                "group": {
+                    "kind": "build",
+                    "isDefault": true
+                },
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": [
+                    "$gradle"
+                ]
+            },
+            {
+                "label": "Build App Debug",
+                "type": "shell",
+                "command": "./gradlew",
+                "args": [
+                    ":app:assembleOfflineDebug"
+                ],
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": [
+                    "$gradle"
+                ]
+            },
+            {
+                "label": "Build Wear Debug",
+                "type": "shell",
+                "command": "./gradlew",
+                "args": [
+                    ":wear:assembleOfflineDebug"
+                ],
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": [
+                    "$gradle"
+                ]
+            },
+            {
+                "label": "Clean Build",
+                "type": "shell",
+                "command": "./gradlew",
+                "args": [
+                    "clean"
+                ],
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": [
+                    "$gradle"
+                ]
+            },
+            {
+                "label": "Run Tests",
+                "type": "shell",
+                "command": "./gradlew",
+                "args": [
+                    "test"
+                ],
+                "group": "test",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": [
+                    "$gradle"
+                ]
+            },
+            {
+                "label": "Print Status",
+                "type": "shell",
+                "command": "./gradlew",
+                "args": [
+                    ":app:printStatus"
+                ],
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": [
+                    "$gradle"
+                ]
+            },
+            {
+                "label": "Check Wear ABI",
+                "type": "shell",
+                "command": "./gradlew",
+                "args": [
+                    ":wear:checkAbi"
+                ],
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": [
+                    "$gradle"
+                ]
+            },
+            {
+                "label": "Verify 16K",
+                "type": "shell",
+                "command": "./gradlew",
+                "args": [
+                    ":app:verify16k"
+                ],
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": [
+                    "$gradle"
+                ]
+            }
+        ]
+    },
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "type": "java",
+                "name": "Debug Android App",
+                "request": "launch",
+                "mainClass": "",
+                "projectName": "app",
+                "args": "",
+                "envFile": "${workspaceFolder}/.env"
+            }
+        ]
+    }
+}

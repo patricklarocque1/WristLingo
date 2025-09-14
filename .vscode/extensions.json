@@ -1,0 +1,11 @@
+{
+    "recommendations": [
+        "mathiasfrohlich.kotlin",
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-gradle",
+        "richardwillis.vscode-gradle",
+        "redhat.vscode-yaml",
+        "ms-vscode.vscode-json",
+        "streetsidesoftware.code-spell-checker"
+    ]
+}
