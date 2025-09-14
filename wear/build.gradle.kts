@@ -94,13 +94,16 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
     
-    // Wear Tiles and ProtoLayout dependencies
+    // Wear Tiles and ProtoLayout dependencies (using stable 1.1.0)
     implementation("androidx.wear.tiles:tiles:1.1.0")
-    implementation("androidx.wear.protolayout:protolayout:1.1.0")
-    implementation("androidx.wear.protolayout:protolayout-material:1.1.0")
+    implementation("androidx.wear.protolayout:protolayout:1.0.0")
+    implementation("androidx.wear.protolayout:protolayout-material:1.0.0")
     
     // Material3 for Text component
     implementation("androidx.compose.material3:material3:1.2.0")
+    
+    // Guava for ListenableFuture support in Tiles API
+    implementation("com.google.guava:guava:31.1-android")
     
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

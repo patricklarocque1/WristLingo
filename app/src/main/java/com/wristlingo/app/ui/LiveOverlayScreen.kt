@@ -39,7 +39,9 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.Build
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,15 +82,16 @@ fun LiveOverlayScreen(
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             // Listen to incoming caption updates and update local VM state
+            val scope = rememberCoroutineScope()
             LaunchedEffect(Unit) {
                 // Partials update headline quickly
-                launch {
+                scope.launch {
                     LiveCaptionBus.partials.collectLatest { part ->
                         vm.appendCaption(part)
                     }
                 }
                 // Finals also append and could trigger additional UI actions later
-                launch {
+                scope.launch {
                     LiveCaptionBus.finals.collectLatest { fin ->
                         vm.appendCaption(fin)
                     }

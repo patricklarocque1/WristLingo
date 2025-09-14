@@ -10,70 +10,106 @@ import androidx.wear.protolayout.DimensionBuilders
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ModifiersBuilders
 import androidx.wear.protolayout.ResourceBuilders
-import androidx.wear.protolayout.material.Chip
+import androidx.wear.protolayout.material.Colors
 import androidx.wear.protolayout.material.Text
+import androidx.wear.protolayout.material.Typography
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
+import com.google.common.util.concurrent.Futures
+import com.google.common.util.concurrent.ListenableFuture
 
 class TranslateTileService : TileService() {
-    override fun onTileRequest(requestParams: RequestBuilders.TileRequest): TileBuilders.Tile {
-        val deviceParams: DeviceParametersBuilders.DeviceParameters = requestParams.deviceParameters
+    override fun onTileRequest(requestParams: RequestBuilders.TileRequest): ListenableFuture<TileBuilders.Tile> {
+        val deviceParams = requestParams.deviceParameters
 
-        val intent = Intent(ACTION_START_LIVE).apply {
-            setPackage(packageName)
-            addCategory(Intent.CATEGORY_DEFAULT)
+        // Create launch intent for MainActivity
+        val launchIntent = Intent(this, com.wristlingo.wear.MainActivity::class.java).apply {
+            action = ACTION_START_LIVE
             putExtra(EXTRA_START_LIVE, true)
-        }
-        val click = ModifiersBuilders.Clickable.Builder()
-            .setOnClick(ActionBuilders.LoadAction.Builder().build())
-            .setId("click-root")
-            .build()
-
-        val launch = ModifiersBuilders.Clickable.Builder()
-            .setOnClick(ActionBuilders.LaunchAction.Builder().setAndroidActivity(ActionBuilders.AndroidActivity.Builder()
-                .setPackageName(packageName)
-                .setClassName("com.wristlingo.wear.MainActivity")
-                .setAction(ACTION_START_LIVE)
-                .addKeyToExtraMapping(EXTRA_START_LIVE, ActionBuilders.StringProp.Builder("true").build())
-                .build()).build())
-            .setId("launch")
-            .build()
-
-        val root = LayoutElementBuilders.Column.Builder()
-            .setWidth(DimensionBuilders.ExpandedDimensionProp.Builder().build())
-            .setHeight(DimensionBuilders.ExpandedDimensionProp.Builder().build())
-            .addContent(
-                Text.Builder(this, "🎤")
-                    .setTypography(androidx.wear.protolayout.material.Typography.TYPOGRAPHY_DISPLAY1)
-                    .setColor(ColorBuilders.ColorProp.Builder(MaterialColors.onBackground(this)).build())
-                    .build()
-            )
-            .addContent(
-                Text.Builder(this, "Translate")
-                    .setTypography(androidx.wear.protolayout.material.Typography.TYPOGRAPHY_TITLE2)
-                    .build()
-            )
-            .build()
-
-        val live = isLiveActive()
-        val liveBadge = if (live) Chip.Builder(this, ModifiersBuilders.Modifiers.Builder().build(), deviceParams)
-            .setTextContent("LIVE")
-            .setPrimaryColors(androidx.wear.protolayout.material.Colors.PRIMARY)
-            .build() else null
-
-        val box = LayoutElementBuilders.Box.Builder()
-            .setWidth(DimensionBuilders.ExpandedDimensionProp.Builder().build())
-            .setHeight(DimensionBuilders.ExpandedDimensionProp.Builder().build())
-            .setModifiers(ModifiersBuilders.Modifiers.Builder().setClickable(launch).build())
-            .addContent(root)
-        if (liveBadge != null) {
-            box.addContent(liveBadge)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
 
-        val layout = LayoutElementBuilders.Layout.Builder().setRoot(box.build()).build()
-        return TileBuilders.Tile.Builder()
+        val launchAction = ActionBuilders.LaunchAction.Builder()
+            .setAndroidActivity(
+                ActionBuilders.AndroidActivity.Builder()
+                    .setPackageName(packageName)
+                    .setClassName("com.wristlingo.wear.MainActivity")
+                    .build()
+            ).build()
+
+        val clickModifier = ModifiersBuilders.Clickable.Builder()
+            .setOnClick(launchAction)
+            .setId("launch_translate")
+            .build()
+
+        // Create main content with proper Material Design colors
+        val colors = Colors.DEFAULT
+        
+        val micIcon = Text.Builder(this, "🎤")
+            .setTypography(Typography.TYPOGRAPHY_DISPLAY1)
+            .setColor(ColorBuilders.argb(colors.onSurface))
+            .build()
+        
+        val titleText = Text.Builder(this, "Translate")
+            .setTypography(Typography.TYPOGRAPHY_TITLE2)
+            .setColor(ColorBuilders.argb(colors.onSurface))
+            .build()
+        
+        val contentColumn = LayoutElementBuilders.Column.Builder()
+            .setWidth(DimensionBuilders.ExpandedDimensionProp.Builder().build())
+            .setHeight(DimensionBuilders.wrap())
+            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
+            .addContent(micIcon)
+            .addContent(
+                LayoutElementBuilders.Spacer.Builder()
+                    .setHeight(DimensionBuilders.dp(4f))
+                    .build()
+            )
+            .addContent(titleText)
+            .build()
+
+        // Add live status if active
+        val isLive = isLiveActive()
+        val mainContent = if (isLive) {
+            val liveBadge = Text.Builder(this, "LIVE")
+                .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                .setColor(ColorBuilders.argb(colors.primary))
+                .build()
+            
+            LayoutElementBuilders.Column.Builder()
+                .setWidth(DimensionBuilders.ExpandedDimensionProp.Builder().build())
+                .setHeight(DimensionBuilders.ExpandedDimensionProp.Builder().build())
+                .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
+                .addContent(contentColumn)
+                .addContent(
+                    LayoutElementBuilders.Spacer.Builder()
+                        .setHeight(DimensionBuilders.dp(8f))
+                        .build()
+                )
+                .addContent(liveBadge)
+                .setModifiers(ModifiersBuilders.Modifiers.Builder().setClickable(clickModifier).build())
+                .build()
+        } else {
+            LayoutElementBuilders.Box.Builder()
+                .setWidth(DimensionBuilders.ExpandedDimensionProp.Builder().build())
+                .setHeight(DimensionBuilders.ExpandedDimensionProp.Builder().build())
+                .setModifiers(ModifiersBuilders.Modifiers.Builder().setClickable(clickModifier).build())
+                .addContent(
+                    LayoutElementBuilders.Column.Builder()
+                        .setWidth(DimensionBuilders.ExpandedDimensionProp.Builder().build())
+                        .setHeight(DimensionBuilders.ExpandedDimensionProp.Builder().build())
+                        .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
+                        .addContent(contentColumn)
+                        .build()
+                )
+                .build()
+        }
+
+        val layout = LayoutElementBuilders.Layout.Builder().setRoot(mainContent).build()
+        val tile = TileBuilders.Tile.Builder()
             .setResourcesVersion("1")
+            .setFreshnessIntervalMillis(30000)
             .setTileTimeline(
                 TileBuilders.Timeline.Builder()
                     .addTimelineEntry(
@@ -82,26 +118,25 @@ class TranslateTileService : TileService() {
                             .build()
                     ).build()
             ).build()
+        
+        return Futures.immediateFuture(tile)
     }
 
-    override fun onResourcesRequest(requestParams: RequestBuilders.ResourcesRequest): ResourceBuilders.Resources {
-        return ResourceBuilders.Resources.Builder().setVersion("1").build()
+    override fun onResourcesRequest(requestParams: RequestBuilders.ResourcesRequest): ListenableFuture<ResourceBuilders.Resources> {
+        val resources = ResourceBuilders.Resources.Builder()
+            .setVersion("1")
+            .build()
+        
+        return Futures.immediateFuture(resources)
     }
 
     private fun isLiveActive(): Boolean {
         val prefs: SharedPreferences = getSharedPreferences("wristlingo_prefs", MODE_PRIVATE)
         return prefs.getBoolean("live_active", false)
     }
-
+    
     companion object {
         const val ACTION_START_LIVE = "com.wristlingo.action.START_LIVE"
         const val EXTRA_START_LIVE = "start_live"
     }
 }
-
-// Simple helper to get Material color
-private object MaterialColors {
-    fun onBackground(ctx: android.content.Context): Int = androidx.core.content.ContextCompat.getColor(ctx, android.R.color.white)
-}
-
-

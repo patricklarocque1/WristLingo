@@ -1,1 +1,0 @@
-/home/boypa/projects/WristLingo/app/build/intermediates/cxx/Debug/6ic6r2h3/obj/arm64-v8a

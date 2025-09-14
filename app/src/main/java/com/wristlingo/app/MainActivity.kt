@@ -52,11 +52,12 @@ class MainActivity : ComponentActivity() {
             WristLingoTheme {
                 var route by remember { mutableStateOf<Screen>(Screen.Home) }
                 when (val r = route) {
-                    is Screen.Home -> SessionsScreen(
+                    is Screen.Home -> HomeScreen(
                         repository = repo,
-                        onOpenSession = { id -> route = Screen.SessionDetail(id) },
+                        onOpenSession = { id: Long -> route = Screen.SessionDetail(id) },
                         onOpenSettings = { route = Screen.Settings },
-                        onOpenDiagnostics = { route = Screen.Diagnostics }
+                        onOpenDiagnostics = { route = Screen.Diagnostics },
+                        onStartLive = { route = Screen.Live }
                     )
                     is Screen.SessionDetail -> SessionDetailScreen(
                         repository = repo,

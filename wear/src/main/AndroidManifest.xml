@@ -23,10 +23,10 @@
             android:exported="true"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
             <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
             </intent-filter>
             <meta-data android:name="androidx.wear.tiles.PREVIEW"
-                android:resource="@android:drawable/ic_btn_speak_now" />
+                android:resource="@drawable/ic_translate_tile" />
         </service>
     </application>
 </manifest>
