@@ -1,0 +1,73 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Kotlin files
+*.kt text diff=kotlin
+*.kts text diff=kotlin
+
+# Gradle files
+*.gradle text diff=java
+*.gradle.kts text diff=kotlin
+
+# Java files
+*.java text diff=java
+
+# XML files
+*.xml text
+
+# JSON files
+*.json text
+
+# Markdown files
+*.md text diff=markdown
+
+# Shell scripts
+*.sh text eol=lf
+
+# Batch files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files
+*.jar binary
+*.aar binary
+*.so binary
+*.dll binary
+*.dylib binary
+*.exe binary
+*.apk binary
+*.aab binary
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+*.bz2 binary
+*.xz binary
+
+# Fonts
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+
+# PDF files
+*.pdf binary
+
+# Keystore files
+*.jks binary
+*.keystore binary
+
+# Proguard files
+*.pro text
+
+# Properties files
+*.properties text

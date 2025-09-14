@@ -1,0 +1,28 @@
+# Add directories or file patterns to ignore during indexing (e.g. foo/ or *.csv)
+# Build and temporary files
+**/build/
+**/.gradle/
+**/.kotlin/
+**/bin/
+**/*.hprof
+**/local.properties
+**/gradle/wrapper/gradle-wrapper.jar
+
+# IDE files
+**/.idea/workspace.xml
+**/.idea/tasks.xml
+**/.idea/usage.statistics.xml
+**/.idea/dictionaries
+**/.idea/shelf
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+**/*.tmp
+**/*.temp
+
+# Large binary files
+**/*.pdf
+**/*.zip
+**/*.jar
+**/*.aar

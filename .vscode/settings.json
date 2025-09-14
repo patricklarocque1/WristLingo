@@ -2,17 +2,26 @@
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.import.gradle.enabled": true,
     "java.import.gradle.wrapper.enabled": true,
+    "java.import.gradle.home": "",
+    "java.import.gradle.java.home": "",
     "java.import.gradle.offline.enabled": false,
     "java.import.gradle.arguments": "--no-daemon",
     "java.import.gradle.jvmArguments": "-Xmx2G",
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.runtimes": [],
+    "kotlin.compiler.jvm.target": "1.8",
     "kotlin.languageServer.enabled": true,
+    "kotlin.languageServer.path": "",
+    "kotlin.debugAdapter.enabled": true,
+    "kotlin.debugAdapter.path": "",
     "kotlin.linting.enabled": true,
     "kotlin.completion.snippets.enabled": true,
     "files.associations": {
         "*.kt": "kotlin",
         "*.kts": "kotlin",
         "*.gradle": "gradle",
-        "*.gradle.kts": "gradle"
+        "*.gradle.kts": "gradle",
+        "*.pro": "properties"
     },
     "files.exclude": {
         "**/build/": true,
@@ -20,19 +29,38 @@
         "**/.gradle": true,
         "**/gradle/wrapper/gradle-wrapper.jar": true,
         "**/*.hprof": true,
-        "**/local.properties": true
+        "**/local.properties": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true
     },
     "search.exclude": {
         "**/build/": true,
         "**/bin/": true,
-        "**/.gradle": true
+        "**/.gradle": true,
+        "**/gradle/wrapper/gradle-wrapper.jar": true,
+        "**/*.hprof": true
     },
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
     },
+    "terminal.integrated.cwd": "${workspaceFolder}",
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "git.ignoreLimitWarning": true,
+    "git.enabled": true,
+    "git.path": "/usr/bin/git",
+    "git.autoRepositoryDetection": true,
+    "git.detectSubmodules": true,
+    "git.showProgress": true,
+    "git.autofetch": true,
+    "git.autofetchPeriod": 180,
+    "git.confirmSync": false,
+    "git.enableSmartCommit": true,
+    "git.smartCommitChanges": "all",
+    "scm.defaultViewMode": "tree",
+    "scm.repositories.visible": 10,
     "gradle.nestedProjects": true,
-    "cSpell.words": [
-        "kapt"
-    ]
+    "cursor.general.enableIndexing": true,
+    "cursor.general.enableCodebaseIndexing": true,
+    "cursor.general.enableGitIntegration": true
 }
