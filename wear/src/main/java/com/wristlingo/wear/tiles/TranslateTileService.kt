@@ -18,7 +18,7 @@ import androidx.wear.tiles.TileService
 
 class TranslateTileService : TileService() {
     override fun onTileRequest(requestParams: RequestBuilders.TileRequest): TileBuilders.Tile {
-        val deviceParams: DeviceParametersBuilders.DeviceParameters = requestParams.deviceConfiguration
+        val deviceParams: DeviceParametersBuilders.DeviceParameters = requestParams.deviceParameters
 
         val intent = Intent(ACTION_START_LIVE).apply {
             setPackage(packageName)

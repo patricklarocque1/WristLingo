@@ -97,6 +97,7 @@ dependencies {
     // Wear Tiles and ProtoLayout dependencies
     implementation("androidx.wear.tiles:tiles:1.1.0")
     implementation("androidx.wear.protolayout:protolayout:1.1.0")
+    implementation("androidx.wear.protolayout:protolayout-material:1.1.0")
     
     // Material3 for Text component
     implementation("androidx.compose.material3:material3:1.2.0")
